@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>General</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-size: 16px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      display: none; /* Oculto hasta generar */
+    }
+    th {
+      background: #4E3766;
+      color: white;
+      padding: 10px;
+    }
+    td {
+      border: 1px solid #340a47;
+      padding: 8px;
+      text-align: center;
+    }
+    td:last-child {
+      background: rgb(108, 189, 169);
+    }
+    .V { background: #7ee277; }
+    .F { background: #dd8fcae5; }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    textarea{
+      width: 80%;
+      
+    }
+  </style>
+</head>
+<body>
+  <h1>General</h1>
+  <h2>Simbolos de operadores: ¬ ∧ → ↔ v</h2>
+  <h2>C=</h2><textarea maxlength="50" placeholder="Escribe una preposicion compuesta (máx 50 caracteres)" id="orig"></textarea>
+  <br>
+  <button id="enviar">Generar</button>
+  
+  <table id="tabla"></table>
+  <script type="module">
+    import { ValidarC } from "./app.js";
+
+    function renderizarTabla( tabla) {
+      const table = document.getElementById("tabla");
+      table.innerHTML = ""; 
+      table.style.display = "table"; 
+
+      // Crear <thead>
+      const thead = document.createElement("thead");
+      const trHead = document.createElement("tr");
+
+      // Encabezados: el primer valor de cada columna
+      for (let col = 0; col < tabla.length; col++) {
+        const th = document.createElement("th");
+        th.textContent = tabla[col][0]; 
+        trHead.appendChild(th);
+      }
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      // Crear <tbody>
+      const tbody = document.createElement("tbody");
+
+      const numFilas = tabla[0].length - 1; // -1 porque el primero ya fue encabezado
+      for (let fila = 0; fila < numFilas; fila++) {
+        const tr = document.createElement("tr");
+        tr.setAttribute("contenteditable", "true");
+
+        for (let col = 0; col < tabla.length; col++) {
+          const td = document.createElement("td");
+          const val = tabla[col][fila + 1]; // +1 para saltar el encabezado
+          td.textContent = val;
+
+          if (val === "V") td.classList.add("V");
+          if (val === "F") td.classList.add("F");
+
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+
+      table.appendChild(tbody);
+    }
+
+    async function construirYMandar() {
+      let resultado = document.getElementById("orig").value;
+      ValidarC(resultado); 
+      const columnas =  [...ValidarC(resultado)];
+
+      renderizarTabla(columnas);
+    }
+
+    document.getElementById("enviar").addEventListener("click", () => construirYMandar());
+  </script>
+</body>
+</html>

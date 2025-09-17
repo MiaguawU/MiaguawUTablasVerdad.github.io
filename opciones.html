@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Opciones A y B</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .bloque { margin-bottom: 50px; }
+    .expresion { font-size: 18px; margin-bottom: 10px; }
+    select {
+      min-width: 50px;
+      text-align: center;
+      margin: 0 3px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      margin-top: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { background: #45a049; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      display: none; /* oculta hasta que se genere */
+    }
+    th {
+      background: #4E3766;
+      color: white;
+      padding: 10px;
+    }
+    td {
+      border: 1px solid #340a47;
+      padding: 8px;
+      text-align: center;
+    }
+    td.V:last-child {
+      background: rgb(108, 189, 169); 
+    }
+
+    td.F:last-child {
+      background: #c370d8; 
+    }
+    .V { background: #98ff91; }
+    .F { background: #f7c5c5; }
+  </style>
+</head>
+<body>
+  <h1>Opciones A y B</h1>
+
+  <div class="bloque">
+    <h2>Opción A</h2>
+    <div class="expresion" id="expA"></div>
+    <button id="enviarA">Generar</button>
+  </div>
+  <table id="tablaA"></table>
+
+  <div class="bloque">
+    <h2>Opción B</h2>
+    <div class="expresion" id="expB"></div>
+    <button id="enviarB">Generar</button>
+  </div>
+  <table id="tablaB"></table>
+
+  <script type="module">
+    import { ValidarC } from "./app.js";
+
+    const A = ["(", "(", "-", "p", "-", "-", "q", ")", "-", "(", "-", "p", "-", "s", ")", ")", "-", "(", "s", "-", "q", ")"];
+    const B = ["(", "(", "-", "p", "-", "-", "q", ")", "-", "-", "r", ")", "-", "(", "(", "-", "r", "-", "-", "t", ")", "-", "(", "q", "-", "t", ")", ")"];
+
+    const opciones = ["", "∧", "v", "¬", "→", "↔"];
+
+    function generarExpresion(array, contenedorId, prefijo) {
+      const contenedor = document.getElementById(contenedorId);
+      contenedor.innerHTML = "";
+      let contadorSelects = 0;
+
+      array.forEach(simbolo => {
+        if (simbolo === "-") {
+          const select = document.createElement("select");
+          select.id = `${prefijo}${contadorSelects}`;
+          opciones.forEach(op => {
+            const option = document.createElement("option");
+            option.value = op;
+            option.textContent = op;
+            select.appendChild(option);
+          });
+          contenedor.appendChild(select);
+          contadorSelects++;
+        } else {
+          contenedor.appendChild(document.createTextNode(simbolo));
+        }
+      });
+    }
+
+    generarExpresion(A, "expA", "a");
+    generarExpresion(B, "expB", "b");
+
+    function renderizarTabla(idTabla, tabla) {
+      const table = document.getElementById(idTabla);
+      table.innerHTML = ""; 
+      table.style.display = "table"; 
+
+      // Crear <thead>
+      const thead = document.createElement("thead");
+      const trHead = document.createElement("tr");
+
+      // Encabezados: el primer valor de cada columna
+      for (let col = 0; col < tabla.length; col++) {
+        const th = document.createElement("th");
+        th.textContent = tabla[col][0]; 
+        trHead.appendChild(th);
+      }
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      // Crear <tbody>
+      const tbody = document.createElement("tbody");
+
+      const numFilas = tabla[0].length - 1; // -1 porque el primero ya fue encabezado
+      for (let fila = 0; fila < numFilas; fila++) {
+        const tr = document.createElement("tr");
+        tr.setAttribute("contenteditable", "true");
+
+        for (let col = 0; col < tabla.length; col++) {
+          const td = document.createElement("td");
+          const val = tabla[col][fila + 1]; // +1 para saltar el encabezado
+          td.textContent = val;
+
+          if (val === "V") td.classList.add("V");
+          if (val === "F") td.classList.add("F");
+
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+
+      table.appendChild(tbody);
+    }
+
+    async function construirYMandar(array, prefijo) {
+      let contadorSelects = 0;
+      let resultado = array.map(simbolo => {
+        if (simbolo === "-") {
+          return document.getElementById(`${prefijo}${contadorSelects++}`).value;
+        }
+        return simbolo;
+      }).join("");
+
+      const columnas =  [...ValidarC(resultado)];
+
+      const idTabla = (prefijo === "a") ? "tablaA" : "tablaB";
+      renderizarTabla(idTabla, columnas);
+    }
+
+    document.getElementById("enviarA").addEventListener("click", () => construirYMandar(A, "a"));
+    document.getElementById("enviarB").addEventListener("click", () => construirYMandar(B, "b"));
+  </script>
+</body>
+</html>
