@@ -16,6 +16,10 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
     if(colmEsp!==undefined){
         columnaEspecial=colmEsp;
     }
+    if(tablaSi===1){
+        console.log("que mando el espc")
+        console.log(arrarSinColumnas);
+    }
     const abc = [
         "a","b","c","d","e","f","g","h","i","j","k","l","m",
         "n","o","p","q","r","s","t","u","w","x","y","z"
@@ -60,7 +64,9 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                 }
                 //si hay mas de 2 pp, eso pues ya lo hizo generar asi que lo ponemos
                 if(contpp>2){
+                    let guardar = colmOrg[i][0];
                     colmOrg[i]=[...columnaEspecial];
+                    colmOrg[i][0]= guardar;//para que al final desconvierta T-T
                 }
                 else{
                     //resolver
@@ -128,7 +134,7 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                                     colmOrg[i] = [...Resolver(op, colmOrg[abreEn-1],colmOrg[ultEnResDerecha], filas, colmOrg[i][0])];
                                 }
                             }
-                            if (colmOrg[ultEnResIzq][1] !== undefined) {
+                            else if (colmOrg[ultEnResIzq][1] !== undefined) {
                                 //console.log("parentesisis izq lleno: "+colmOrg[i][0])
                                 let op = QueOperador(colmOrg[i][0]);
                                 ////console.log("izquierda: "+colmOrg[ultEnResIzq])
@@ -166,7 +172,7 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                         colmOrg[i] = [...Resolver(op, colmOrg[ultEnResIzq],colmOrg[colmDerec], filas, colmOrg[i][0])];
                     }
                 }
-                else if (colmOrg[i+1][1] !== undefined) {//si en ningun al rededor hay parentesis cerrados podria ser (¬p
+                else if (colmOrg[i+1][1] !== undefined) {//
                     let colmIzq = i-1;
                     let op = QueOperador(colmOrg[i][0]);
                     ////console.log("Derecha es la derecha izq es la izq sin complicaciones")
@@ -214,7 +220,6 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                 if(sinLlenar===0){
                     //verificar quien es el ultimo en resolver para poner lo mismo aqui
                     let numeColumna = UltimaColumnaEnResolver(colmOrg,0,colmOrg.length-1,1);
-                    let nose = UltimaColumnaEnResolver(colmOrg,0,colmOrg.length-1,0);
                     //console.log("array orden de c=");
                     //console.log(nose)
                     //console.log("numero que manda el ultcoml: "+numeColumna)
@@ -227,10 +232,12 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                         //console.log(colmOrg[numeColumna]);
                         colmOrg[i]=[...colmOrg[numeColumna]];
                         termino=true;
-                        if(tablaSi===0){
+                        if(tablaSi===0){//si modo tabla le ponemos encabexado =c 
                             colmOrg[i][0]="=c";
                         }else{
-                            return colmOrg[i];
+                            console.log("tabla especial")
+                            console.log(colmOrg);
+                            return colmOrg[i];//si no retornamos el puro resultado 
                         }
                     }
                     
@@ -293,16 +300,19 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                     if (columna.izquierda !== null && columna.izquierda >= 0 && Array.isArray(colmOrg[columna.izquierda])) {
                         izq=[...colmOrg[columna.izquierda]];
                     }
+                    else{
+                        throw new Error ("no ha izq en pv ya ru sabe")
+                    }
 
                     if (cerradoEn !== null) {
                         let ultEnResDerecha = UltimaColumnaEnResolver(colmOrg, i+1, cerradoEn);
 
                         if (colmOrg[ultEnResDerecha][1] !== undefined) {
                             
-                            if(colmOrg[izq][1]!==undefined){
-                                ////console.log("izquierda: "+colmOrg[colmIzq])
-                                ////console.log("derecha: "+colmOrg[ultEnResDerecha])
-                                colmOrg[i] = [...Resolver(op, colmOrg[izq],colmOrg[ultEnResDerecha], filas, colmOrg[i][0])];
+                            if(izq[1] !== undefined){
+                                console.log("izquierda: "+izq)
+                                console.log("derecha: "+colmOrg[ultEnResDerecha])
+                                colmOrg[i] = [...Resolver(op, izq,colmOrg[ultEnResDerecha], filas, colmOrg[i][0])];
                             }
                         }
                         

@@ -28,6 +28,7 @@
       border-collapse: collapse;
       margin-top: 20px;
       display: none; /* oculta hasta que se genere */
+      border: 1px solid #340a47;
     }
     th {
       background: #4E3766;
@@ -52,6 +53,7 @@
 </head>
 <body>
   <h1>Opciones A y B</h1>
+  <h2>Simbolos de operadores: ¬ ∧ → ↔ v</h2>
 
   <div class="bloque">
     <h2>Opción A</h2>
@@ -75,11 +77,26 @@
 
     const opciones = ["", "∧", "v", "¬", "→", "↔"];
 
-    function generarExpresion(array, contenedorId, prefijo) {
-      const contenedor = document.getElementById(contenedorId);
-      contenedor.innerHTML = "";
-      let contadorSelects = 0;
+    function generarExpresion(array, contenedorId, prefijo, inputSi) {
+    const contenedor = document.getElementById(contenedorId);
+    contenedor.innerHTML = "";
+    let contadorSelects = 0;
 
+    if (inputSi === 0) {
+      array.forEach(simbolo => {
+        if (simbolo === "-") {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.maxLength = 1;  
+          input.size=1;
+          input.id = `${prefijo}${contadorSelects}`;
+          contenedor.appendChild(input);
+          contadorSelects++;
+        } else {
+          contenedor.appendChild(document.createTextNode(simbolo));
+        }
+      });
+    } else {
       array.forEach(simbolo => {
         if (simbolo === "-") {
           const select = document.createElement("select");
@@ -97,20 +114,22 @@
         }
       });
     }
+  }
 
-    generarExpresion(A, "expA", "a");
-    generarExpresion(B, "expB", "b");
+
+    generarExpresion(A, "expA", "a",0);
+    generarExpresion(B, "expB", "b",0);
 
     function renderizarTabla(idTabla, tabla) {
       const table = document.getElementById(idTabla);
       table.innerHTML = ""; 
       table.style.display = "table"; 
 
-      // Crear <thead>
+      //Crear <thead>
       const thead = document.createElement("thead");
       const trHead = document.createElement("tr");
 
-      // Encabezados: el primer valor de cada columna
+      //Encabezados: el primer valor de cada columna
       for (let col = 0; col < tabla.length; col++) {
         const th = document.createElement("th");
         th.textContent = tabla[col][0]; 
@@ -119,17 +138,17 @@
       thead.appendChild(trHead);
       table.appendChild(thead);
 
-      // Crear <tbody>
+      //Crear <tbody>
       const tbody = document.createElement("tbody");
 
-      const numFilas = tabla[0].length - 1; // -1 porque el primero ya fue encabezado
+      const numFilas = tabla[0].length - 1; //-1 porque el primero ya fue encabezado
       for (let fila = 0; fila < numFilas; fila++) {
         const tr = document.createElement("tr");
         tr.setAttribute("contenteditable", "true");
 
         for (let col = 0; col < tabla.length; col++) {
           const td = document.createElement("td");
-          const val = tabla[col][fila + 1]; // +1 para saltar el encabezado
+          const val = tabla[col][fila + 1]; //+1 para saltar el encabezado
           td.textContent = val;
 
           if (val === "V") td.classList.add("V");

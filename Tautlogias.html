@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tautologia</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .bloque { margin-bottom: 50px; }
+    .expresion { font-size: 18px; margin-bottom: 10px; }
+    select {
+      min-width: 50px;
+      text-align: center;
+      margin: 0 3px;
+    }
+    .expresion-con-linea {
+  display: inline-block;
+  text-align: left;   /* ahora alineado a la izquierda */
+  margin: 20px auto;
+  font-size: 20px;
+}
+
+.expresion-con-linea .arriba {
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; /* alineación a la izquierda */
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.expresion-con-linea .linea {
+  border-top: 2px solid black;
+  margin: 5px 0;
+  width: 100%; /* línea que ocupa todo el ancho */
+}
+
+.expresion-con-linea .abajo {
+  margin-top: 5px;
+}
+
+.overlay {
+    display: none; /* oculto por defecto */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .alerta-contenido {
+    background: white;
+    padding: 25px 40px;
+    border-radius: 16px;
+    font-size: 22px;
+    font-weight: bold;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: aparecer 0.4s ease;
+  }
+  .alerta-contenido.verdadero {
+    background: #e0ffe0;
+    color: #155724;
+    border: 2px solid #28a745;
+  }
+  .alerta-contenido.falso {
+    background: #ffe0e0;
+    color: #721c24;
+    border: 2px solid #dc3545;
+  }
+  @keyframes aparecer {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      margin-top: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { background: #45a049; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      display: none; /* oculta hasta que se genere */
+      border: 1px solid #340a47;
+    }
+    th {
+      background: #4E3766;
+      color: white;
+      padding: 10px;
+    }
+    td {
+      border: 1px solid #340a47;
+      padding: 8px;
+      text-align: center;
+    }
+    td.V:last-child {
+      background: rgb(108, 189, 169); 
+    }
+
+    td.F:last-child {
+      background: #c370d8; 
+    }
+    .V { background: #98ff91; }
+    .F { background: #f7c5c5; }
+  </style>
+</head>
+<body>
+  <h1>Tautologías</h1>
+  <h2>Simbolos de operadores: ¬ ∧ → ↔ v</h2>
+
+  <div id="alerta" class="overlay">
+  <div class="alerta-contenido" id="alertaContenido"></div>
+</div>
+
+  <div class="bloque">
+  <div class="expresion-con-linea">
+    <div class="arriba">
+      <div id="exp1" class="expresion"></div>
+      <div id="exp2" class="expresion"></div>
+      <div id="exp3" class="expresion"></div>
+      <div id="exp4" class="expresion"></div>
+    </div>
+    <div class="linea"></div>
+    <div class="abajo" id="exp5"></div>
+  </div>
+</div>
+
+  <button id="enviar">Generar</button>
+
+  <script type="module">
+    import { ValidarC, EsTautologia } from "./app.js";
+
+    const A = ["(", "(", "-", "p", "-", "-", "q", ")", "-", "(", "-", "p", "-", "s", ")", ")", "-", "(", "s", "-", "q", ")"];
+    const B = ["(", "(", "-", "p", "-", "-", "q", ")", "-", "-", "r", ")", "-", "(", "(", "-", "r", "-", "-", "t", ")", "-", "(", "q", "-", "t", ")", ")"];
+    const uno = ["-","(","p","-","q",")"];
+    const dos = ["-","(","p","-","r",")"];
+    const tres = ["-","(","-","p","-","-","s",")"];
+    const cuatro = ["-","(","r","-","t",")"];
+    const cinco = ["-","p","-","-","s"];
+
+    const opciones = ["", "∧", "v", "→", "↔"];
+    const opcionesSoloNot = ["",  "¬"];
+
+function generarExpresion(array, contenedorId, prefijo, inputSi) {
+    const contenedor = document.getElementById(contenedorId);
+    contenedor.innerHTML = "";
+    let contadorSelects = 0;
+
+    if (inputSi === 0) {
+      array.forEach(simbolo => {
+        if (simbolo === "-") {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.maxLength = 1;  
+          input.size=1;
+          input.id = `${prefijo}${contadorSelects}`;
+          contenedor.appendChild(input);
+          contadorSelects++;
+        } else {
+          contenedor.appendChild(document.createTextNode(simbolo));
+        }
+      });
+    } else {
+      array.forEach((simbolo, i) => {
+        let queOpciones;
+
+        if (simbolo === "-") {
+            if (i === 0 || array[i-1] === "-" || array[i-1] === "(") {
+                queOpciones = opcionesSoloNot;
+            } else {
+                queOpciones = opciones;
+            }
+          const select = document.createElement("select");
+          select.id = `${prefijo}${contadorSelects}`;
+          queOpciones.forEach(op => {
+            const option = document.createElement("option");
+            option.value = op;
+            option.textContent = op;
+            select.appendChild(option);
+          });
+          contenedor.appendChild(select);
+          contadorSelects++;
+        }
+        else if(simbolo === "-"){
+
+        } else {
+          contenedor.appendChild(document.createTextNode(simbolo));
+        }
+      });
+    }
+  }
+
+    generarExpresion(uno, "exp1", "uno", 1);
+    generarExpresion(dos, "exp2", "dos", 2);
+    generarExpresion(tres, "exp3", "tres", 3);
+    generarExpresion(cuatro, "exp4", "cuatro", 4);
+    generarExpresion(cinco, "exp5", "cinco", 5);
+
+    async function construirYMandar() {
+  let contadorSelects = 0;
+
+  let resUno = uno.map(simbolo => {
+    if (simbolo === "-") {
+      return document.getElementById(`uno${contadorSelects++}`).value;
+    }
+    return simbolo;
+  }).join("");
+
+  contadorSelects = 0;
+  let resDos = dos.map(simbolo => {
+    if (simbolo === "-") {
+      return document.getElementById(`dos${contadorSelects++}`).value;
+    }
+    return simbolo;
+  }).join("");
+
+  contadorSelects = 0;
+  let resTres = tres.map(simbolo => {
+    if (simbolo === "-") {
+      return document.getElementById(`tres${contadorSelects++}`).value;
+    }
+    return simbolo;
+  }).join("");
+
+  contadorSelects = 0;
+  let resCuatro = cuatro.map(simbolo => {
+    if (simbolo === "-") {
+      return document.getElementById(`cuatro${contadorSelects++}`).value;
+    }
+    return simbolo;
+  }).join("");
+
+  contadorSelects = 0;
+  let resCinco = cinco.map(simbolo => {
+    if (simbolo === "-") {
+      return document.getElementById(`cinco${contadorSelects++}`).value;
+    }
+    return simbolo;
+  }).join("");
+
+  let expresiones = [resUno, resDos, resTres, resCuatro, resCinco];
+  let todoCorrecto = true;
+
+  for (let i = 0; i < expresiones.length; i++) {
+    let valido = ValidarC(expresiones[i], 0);
+    if (valido===false) {
+      todoCorrecto = false;
+      alert("Hubo un error al validar");
+      return false;
+    }
+  }
+
+  const esTautologia = EsTautologia(resUno, resDos, resTres, resCuatro, resCinco);
+  const overlay = document.getElementById("alerta");
+    const alertaContenido = document.getElementById("alertaContenido");
+
+    alertaContenido.textContent = esTautologia 
+    ? "!Verdadero: Es tautología!" 
+    : " X Falso: No es tautología";
+
+    alertaContenido.className = "alerta-contenido " + (esTautologia ? "verdadero" : "falso");
+
+    overlay.style.display = "flex";
+
+    overlay.onclick = () => overlay.style.display = "none";
+}
+
+
+    document.getElementById("enviar").addEventListener("click", () => construirYMandar());
+  </script>
+</body>
+</html>

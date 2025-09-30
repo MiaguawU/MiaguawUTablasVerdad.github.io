@@ -1,11 +1,12 @@
 export function GenerarColumnas(arrPorProcesar,arrPorCompletar) {//valido
     let arrbs =[...arrPorProcesar];
-    let colmOrg=[...arrPorCompletar];
+    let colmOrg = Array.isArray(arrPorCompletar) ? [...arrPorCompletar] : [];
     let colmA = ""; //columna de apoyo
     const abc = [
         "a","b","c","d","e","f","g","h","i","j","k","l","m",
         "n","o","p","q","r","s","t","u","w","x","y","z"
     ];
+    const operadores = ["AND", "OR", "NOT", "IF", "THEN"];
     let ap = 0;
     let hayAlgunOp=false;
     for (let i=0; i< arrbs.length; i++){
@@ -21,12 +22,12 @@ export function GenerarColumnas(arrPorProcesar,arrPorCompletar) {//valido
             }//si no ponemos else se hara una columna vacia
         }
         else if(arrbs[i]==="NOT"){
-            if(arrbs[i+1]==="("){
+            if((i+1)<arrbs.length&&(arrbs[i+1]==="(")){
                 colmOrg.push([colmA]);
                 colmA = "";
             }
-            else if(arrbs[i-1]==="OR"||arrbs[i-1]==="AND"||
-                arrbs[i-1]==="THEN"||arrbs[i-1]==="IF"){
+            else if((i-1)>=0&&(arrbs[i-1]==="OR"||arrbs[i-1]==="AND"||
+                arrbs[i-1]==="THEN"||arrbs[i-1]==="IF")){
                     if(arrbs[1+i]!==undefined&&abc.includes(arrbs[i+1])){
                         if(arrbs[i+2]===")"){
                             
@@ -47,7 +48,7 @@ export function GenerarColumnas(arrPorProcesar,arrPorCompletar) {//valido
                 colmA = "";
             }
         }
-        else if (arrbs[i] !== undefined && abc.includes(arrbs[i].toLowerCase())) {
+        else if (typeof arrbs[i] === "string" && abc.includes(arrbs[i].toLowerCase())&&!operadores.includes(arrbs[i].toUpperCase())) {
             if(i===arrbs.length-1){
                 colmOrg.push([colmA]);
                 colmA = "";
@@ -61,8 +62,8 @@ export function GenerarColumnas(arrPorProcesar,arrPorCompletar) {//valido
             }
         }
     }
-    
-
+    console.log("columnas hechas de generar: ")
+    console.log(colmOrg);
     return colmOrg;
 }
 

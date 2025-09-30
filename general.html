@@ -31,8 +31,11 @@
       padding: 8px;
       text-align: center;
     }
-    td:last-child {
-      background: rgb(108, 189, 169);
+    td.V:last-child {
+      background: rgb(108, 189, 169); 
+    }
+    td.F:last-child {
+      background: #c370d8; 
     }
     .V { background: #7ee277; }
     .F { background: #dd8fcae5; }
@@ -109,7 +112,6 @@
 
     async function construirYMandar() {
       let resultado = document.getElementById("orig").value;
-      ValidarC(resultado); 
       const columnas =  [...ValidarC(resultado)];
 
       renderizarTabla(columnas);

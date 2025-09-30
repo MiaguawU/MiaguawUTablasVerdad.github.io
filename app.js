@@ -4,7 +4,42 @@ import { DesConvertir } from "./funciones/DesConvertir.js";
 import { SinParentesisArrayConOperadores } from "./funciones/SinParentesis.js";
 import { UltimaColumnaEnResolver } from "./funciones/UltimaColumnaEnResolver.js";
 import { MandarAResolverSoloC } from "./funciones/MandarResolver.js";
-import { GenerarColumnasDeTabla } from "./funciones/GenerarColm.js";
+import { GenerarColumnas,GenerarColumnasDeTabla } from "./funciones/GenerarColm.js";
+import { Resolver } from "./funciones/Resolver.js";
+
+function OrdenEspecial(arrTemp){//validado
+    const array = Array.isArray(arrTemp) ? [...arrTemp] : ["null"];
+    let termino= false;
+    const abc = [
+        "a","b","c","d","e","f","g","h","i","j","k","l","m",
+        "n","o","p","q","r","s","t","u","w","x","y","z"
+    ];
+    const operadores = ["NOT","AND", "OR", "THEN", "IF"];
+    let orden = new Array(array.length).fill(0);
+    let contOrden =0;
+
+    for(let i=0; i<operadores.length;i++){
+        if(array[0]==="null"){
+            throw new Error("el array es invalido")
+        }
+            for(let j =0; j<orden.length;j++){
+                let aStr = String(array[j]);
+                if(orden[j]!==0)continue;
+
+                if(aStr.length===1&&abc.includes(aStr.toLowerCase())){
+                    orden[j]=-1;
+                }else{
+                    if(array[j]===operadores[i]){
+                        contOrden++;
+                        orden[j]=contOrden;
+                    }
+                } 
+                
+            }
+                 
+    }
+    return orden;
+}
 
 function Generar(expresion) {
     const original = expresion;
@@ -29,7 +64,7 @@ function Generar(expresion) {
     console.log(pp)
     let colmOrg =[...GenerarColumnasDeTabla(arrbs,n,pp)];
     let columnaEspecial =[];
-    let {ap,ap4}=0
+    let {ap,ap4}=0;
         
     for (let i=0; i< colmOrg.length; i++){
         ap= i+1;
@@ -46,11 +81,13 @@ function Generar(expresion) {
             }
             //si hay mas de 2 pp, 
             if(contpp>2){
-                let arrOrden = UltimaColumnaEnResolver(arrTemp,0,arrT2.length-1,0);//sacamos el orden de resolucion
+                console.log("paso a columna especial")
+                let arrOrden = OrdenEspecial(arrTemp);//sacamos el orden de resolucion
                 let expresion=agregarParentesis(arrTemp,arrOrden);//agregar parentesis para un mejor orden
-                arrT2=SinParentesisArrayConOperadores(expresion,0);//crearmos columnas
                 //mandamos a resolver las columnas y el reultado lo ponemos en esta (eso lo hago cuando termine este while)
-                columnaEspecial=[...MandarAResolverSoloC(arrT2,n,pp,null,1)];
+                columnaEspecial=[...MandarAResolverSoloC(expresion,n,pp,null,1)];
+                console.log("colm resuleta res")
+                console.log(columnaEspecial)
             }
         }
         
@@ -62,7 +99,45 @@ function Generar(expresion) {
 
 }
 
-export function ValidarC(expre) {
+export function EsTautologia (resUno, resDos, resTres, resCuatro, resCinco){
+    const pp = ["p","q","r","s","t"];
+    const n = 5;
+    let tabla = [["uno"],["dos"],["tres"],["cuatro"],["cinco"],["=c"]];
+
+    let expresiones = {//diccionario de los arrays (objeto)
+        uno: [...Convertir(resUno.split(""))],
+        dos: [...Convertir(resDos.split(""))],
+        tres: [...Convertir(resTres.split(""))],
+        cuatro: [...Convertir(resCuatro.split(""))],
+        cinco: [...Convertir(resCinco.split(""))]
+    };
+
+    for (let i = 0; i < tabla.length-1; i++) {
+        let nombre = tabla[i][0];  
+        tabla[i] = [...MandarAResolverSoloC(expresiones[nombre],n,pp,null,1)];
+        tabla[i][0]=nombre;
+    }
+
+    tabla[1]=[...Resolver("AND",tabla[0],tabla[1],32,"dos")];
+    tabla[2]=[...Resolver("AND",tabla[1],tabla[2],32,"tres")];
+    tabla[3]=[...Resolver("AND",tabla[2],tabla[3],32,"cuatro")];
+
+    tabla[5]=[...Resolver("THEN",tabla[3],tabla[4],32,"=c")];
+    console.log(tabla[5])
+
+    for (let i = 1; i < 32; i++) {
+        if(tabla[5][i]===1){
+            console.log("antes de mayonesa: "+tabla[5][i])
+            return false;
+        }
+    }
+    console.log("tabla resuelta mayonesa: ")
+    console.log(tabla);
+
+    return true;
+}
+
+export function ValidarC(expre,tautologia) {
     let prOr = "";
 
     if (expre !== undefined) {
@@ -144,6 +219,10 @@ export function ValidarC(expre) {
     if (contO <= 0) {
         alert("No hay operaciones, no es una proposicion compuesta.");
         return false;
+    }
+
+    if(tautologia===0){
+        return true;
     }
 
     alert("exito: " + prOr);

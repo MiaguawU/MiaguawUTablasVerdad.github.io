@@ -69,3 +69,41 @@ export function DondeAbreParentesis(colmEmpieza, arraycolm) {
 
     return null;
 }
+
+export function CuantosParentCerrarHay(array,lugar){
+    const arr = array;
+    let lug= lugar;
+    let contpar=0;
+    let resultado=null;
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    //console.log(arr)
+
+    for(let i=lug; i<arr.length; i++){
+        //console.log("Vuelta: "+arr[i]);
+        if(/\)/.test(arr[i])){
+            if(i===lug){
+                contpar++;
+                //console.log("pasa 1 cuenta: "+contpar);
+            }
+            else if(i===(arr.length-1)){
+                resultado = i;
+                //console.log("no ):"+contpar)
+                //console.log(arr[i])
+                break;
+            } 
+            else{
+                contpar++;
+                //console.log("hay )): "+contpar)
+            }
+        }
+        else{
+            resultado = i-1;
+            //console.log("no ):"+contpar)
+            //console.log(arr[i-1])
+            break;
+        }       
+    }
+
+    return {resultado,contpar};
+    
+}
