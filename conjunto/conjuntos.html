@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Conjuntos</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 40px; 
+      background-color: #f6f5fa; 
+      color: #3a3a3a;
+    }
+
+    .bloque { 
+      margin-bottom: 50px; 
+      margin-left: 2%;
+      border: 2px solid #7c54a7; 
+      border-radius: 12px;
+      padding: 20px;
+      width: 80%;
+      box-shadow: 0 4px 15px rgba(124, 84, 167, 0.2); 
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+h3 {
+      margin: 0;
+    }
+    .mor{
+      color: #7c54a7; 
+    }
+
+    .vd{
+      color: #3f9644; 
+    }
+
+
+    button {
+      padding: 10px 18px;
+      font-size: 16px;
+      margin-top: 10px;
+      background: #3f9644; 
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover { 
+      background: #36a03b; 
+    }
+
+    #dejar {
+      padding: 10px 18px;
+      font-size: 16px;
+      margin-top: 10px;
+      background: #823f96; 
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: none;
+    }
+
+    #dejar:hover { 
+      background: #652f75; 
+    }
+
+    input[type="text"]{
+      padding: 8px 12px;
+      border: 2px solid #7c54a7; 
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+      background-color: #fff;
+      color: #2e2e2e;
+      width: 20%;
+    }
+
+    input[type="number"] {
+      padding: 8px 12px;
+      border: 2px solid #7c54a7; 
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+      background-color: #fff;
+      color: #2e2e2e;
+      width: 12%;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: #4e3766;
+      box-shadow: 0 0 6px rgba(124, 84, 167, 0.5);
+    }
+
+    .alineado {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    #resu{
+      display: none;
+    }
+    #C{
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Conjuntos</h1>
+  <div class="bloque">
+    <h3>Numero de letras del abc (para el universo):</h3>
+    <br>
+    <div class="alineado">
+      <h3 class="mor">n=</h3>
+      <input type="number" id="n" placeholder="num letras">
+      <h3 class="vd" id="abc"></h3>
+    </div>
+    <br>
+    <h3>Escriba letras dentro del universo sin repetir:</h3>
+    <br>
+    <div class="alineado">
+      <h3 class="mor">A=</h3>
+      <input type="text" id="A" placeholder="escriba letras sin espacios" maxlength="27">
+    </div>
+    <div class="alineado">
+      <h3 class="mor">B=</h3>
+      <input type="text" id="B" placeholder="escriba letras sin espacios" maxlength="27">
+    </div>
+    <br>
+    <h3>Vocales:</h3>
+    <br>
+    <div class="alineado">
+      <h3 class="mor">C=</h3>
+      <input type="text" id="C" placeholder="escriba vocales" maxlength="5">
+      <h3 class="vd" id="voc"></h3>
+    </div>
+    <div class="alineado">
+    <button id="escVoc">Escribir vocales</button>
+    <button id="dejar">Cancelar escribir vocales</button>
+    </div>
+  </div>
+
+  <button id="enviar">Generar</button>
+  <h2 style="margin-top: 30px;">Resultados:</h2>
+
+  <div class="bloque" id="resu" style="margin-top: 10px;">
+    <div class="alineado">
+      <h3 class="ros">[ (A∩B) U (A∩C) ]c =</h3>
+      <h3 class="vd" id="pri"></h3>
+    </div>
+    <br>
+    <div class="alineado">
+      <h3 class="ros">(A-B) ⊕ (A-C) =</h3>
+      <h3 class="vd" id="seg"></h3>
+    </div>
+    <br>
+    <div class="alineado">
+      <h3 class="ros">(Ac ⊕ Bc) ⊕ Cc =</h3>
+      <h3 class="vd"id="ter"></h3>
+    </div>
+  </div>
+
+  <script type="module">
+    import { validar } from "./Conj.js";
+
+    const abc = [
+        "a","b","c","d","e","f","g","h","i","j","k","l","m",
+        "n","ñ","o","p","q","r","s","t","u","v","w","x","y","z"
+    ];
+    const vocales =[
+        "a","e","i","o","u"
+    ];
+
+    let letras =[];
+    let voca = [];
+    let conjuntoC = [];
+
+    const num = document.getElementById("n");
+    const univ = document.getElementById("abc");
+    const vocl = document.getElementById("voc");
+
+    num.addEventListener("input", () => {
+      const valor = parseInt(num.value);
+
+      if (isNaN(valor)) {
+        univ.textContent = "";
+        return;
+      }
+
+      if (valor >= 1 && valor <= 27) {
+        letras = abc.slice(0, valor);
+        voca=letras.filter(letra => vocales.includes(letra));
+        univ.textContent= `U= { ${letras.join(", ")} }`;
+        vocl.textContent= `{ ${voca.join(", ")} }`;
+      } 
+      else if (valor <= 0) {
+        univ.textContent= "Debe ser un numero mayor a 0";
+      } 
+      else {
+        univ.textContent ="No hay mas de 27 letras";
+      }
+    });
+
+    function ingresaVoc(){
+      const inpC = document.getElementById("C");
+      const dej = document.getElementById("dejar");
+      inpC.style.display="block";
+      dej.style.display="block";
+    }
+    function limpiarVoc(){
+      const inpC = document.getElementById("C");
+      const dej = document.getElementById("dejar");
+      inpC.style.display="none";
+      dej.style.display="none";
+      inpC.value="";
+    }
+
+    function mandar(){
+      const num = document.getElementById("n").value;
+      const a = document.getElementById("A").value;
+      const b = document.getElementById("B").value;
+      const c = document.getElementById("C").value;
+      const block= document.getElementById("resu");
+      const pri = document.getElementById("pri");
+      const seg = document.getElementById("seg");
+      const ter = document.getElementById("ter");
+
+      const resultados = validar(num,letras,voca,a,b,c);
+
+      if(resultados===false){
+        return false;
+      }
+
+      pri.textContent= `{ ${resultados.pri.join(", ")} }`;
+      seg.textContent= `{ ${resultados.seg.join(", ")} }`;
+      ter.textContent= `{ ${resultados.ter.join(", ")} }`;
+
+      block.style.display="block";
+      block.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    document.getElementById("escVoc").addEventListener("click", () => ingresaVoc());
+    document.getElementById("dejar").addEventListener("click", () => limpiarVoc());
+    document.getElementById("enviar").addEventListener("click", () => mandar());
+  </script>
+</body>
+</html>

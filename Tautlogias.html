@@ -262,8 +262,8 @@ function generarExpresion(array, contenedorId, prefijo, inputSi) {
     const alertaContenido = document.getElementById("alertaContenido");
 
     alertaContenido.textContent = esTautologia 
-    ? "!Verdadero: Es tautología!" 
-    : " X Falso: No es tautología";
+    ? "!Verdadero: Es un argumento valido!" 
+    : " X Falso: No es un argumento valido";
 
     alertaContenido.className = "alerta-contenido " + (esTautologia ? "verdadero" : "falso");
 
@@ -271,7 +271,6 @@ function generarExpresion(array, contenedorId, prefijo, inputSi) {
 
     overlay.onclick = () => overlay.style.display = "none";
 }
-
 
     document.getElementById("enviar").addEventListener("click", () => construirYMandar());
   </script>
