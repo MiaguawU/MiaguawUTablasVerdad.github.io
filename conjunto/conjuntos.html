@@ -66,6 +66,21 @@ h3 {
     #dejar:hover { 
       background: #652f75; 
     }
+    #escVoc {
+      padding: 10px 18px;
+      font-size: 16px;
+      margin-top: 10px;
+      background: #6154ad; 
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #escVoc:hover { 
+      background: #8a42a0; 
+    }
 
     input[type="text"]{
       padding: 8px 12px;
@@ -231,6 +246,15 @@ h3 {
       const pri = document.getElementById("pri");
       const seg = document.getElementById("seg");
       const ter = document.getElementById("ter");
+
+      if(voca.length===0){
+        console.log("voca length 0")
+        voca=[...vocales];
+        console.log(voca)
+      }
+      if(letras.length===0){
+        letras=[...abc];
+      }      
 
       const resultados = validar(num,letras,voca,a,b,c);
 

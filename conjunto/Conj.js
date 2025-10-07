@@ -1,7 +1,7 @@
 let universo = [];
 let vocales =[];
-let conjA =[];
-let conjB =[];
+let conjA =[" "];
+let conjB =[" "];
 let conjC =[];
 let n= 0;
 
@@ -11,11 +11,8 @@ function complemento(con){
     if(conj===null){
         throw new Error("El conjunto no es un array");
     }
-    else if(conj.length===0){
-        throw new Error("el conjunto es invalido");
-    }
-
-    if(conj[0]===" "){
+    
+    if(conj.length===0){
         return conjRes;
     }
     else if(conj===universo){
@@ -32,7 +29,8 @@ function resolver(izq,der,op){
     const operacion =String(op);
     let resultado=[];
 
-    if(izquierda=== null|| derecha ===null || izquierda.length===0|| derecha.length===0){
+    if(izquierda=== null|| derecha ===null){
+        console.log(izquierda)
         throw new Error("Algun conjunto dado no es valido");
     }
 
@@ -59,7 +57,9 @@ function resolver(izq,der,op){
     
     if(resultado.length===0||resultado===undefined){
         resultado=[" "];
+        return resultado;
     }
+    resultado = resultado.filter(e => e !== " ");
     return resultado;
 }
 
@@ -88,6 +88,8 @@ function operacionesDef(){
     izq=[...resolver([...complemento([...conjA])],[...complemento([...conjB])],"DIFF")];
     der=[...complemento([...conjC])];
     conjsRes.ter=[...resolver(izq,der,"DIFF")];
+    console.log("res de ult");
+    console.log(conjsRes.ter);
 
     alert("exito");
 
@@ -96,34 +98,77 @@ function operacionesDef(){
 
 export function validar(num,un,voc,A,B,C){
     let resultados;
+    universo = Array.isArray(un) ? [...un] : ["null"];
 
     if(num===""){
-        alert("n debe tener algun valor");
-        return false;
+        n = 27;
+    }
+    else{
+        n = parseInt(num);
     }
     if(A===""){
-        alert("A debe contener alguna letra");
-        return false;
+        console.log("A es nada");
+        console.log(A);
     }
-    if(B===""){
-        alert("B debe contener alguna letra");
-        return false;
+    else{
+        conjA = A.split("");
+        if (/\s/.test(A)) {
+            alert("A no puede tener espacios");
+            return false;
+        }
+        for(let i=0; i<conjA.length; i++){
+            if(!universo.includes(conjA[i].toLowerCase())){
+                alert(conjA[i]+" no estta en el universo, revisa A");
+                return false;
+            }
+            for(let j=0;j<conjA.length; j++){
+                if(conjA[i]===conjA[j] && i!==j){
+                    alert(conjA[i]+" se repite en A");
+                    return false;
+                }
+            }
+        }
     }
-
+    console.log("Valor de B:", B, "tipo:", typeof B);
+    if(B.trim()===""){
+        console.log("B es nada");
+        console.log(B);
+    }
+    else{
+        conjB = B.split("");
+        if (/\s/.test(B)) {
+            alert("B no puede tener espacios");
+            return false;
+        }
+            
+        for(let i=0; i<conjB.length; i++){
+            if(!universo.includes(conjB[i].toLowerCase())){
+                alert(conjB[i]+" no estta en el universo, revisa B");
+                return false;
+            }
+        }
+    }
+    console.log(C);
     if(C===""){
+        console.log("C es nada");
         conjC = Array.isArray(voc) ? [...voc] : ["null"];
         vocales= Array.isArray(voc) ? [...voc] : ["null"];
+        console.log(C);
         if (/\s/.test(C)) {
             alert("C no puede tener espacios");
             return false;
+        }
+        for(let i=0; i<conjC.length; i++){
+            if(!vocales.includes(conjC[i].toLowerCase())){
+                alert(conjC[i]+" no estta en el universo o no es una vocal, revisa C");
+                return false;
+            }
         }
     }
     else{
         conjC = C.split("");
         vocales= Array.isArray(voc) ? [...voc] : ["null"];
     }
-
-    n = parseInt(num);
 
     if(isNaN(n)){
         alert("n no es un numero");
@@ -138,60 +183,15 @@ export function validar(num,un,voc,A,B,C){
         return false;
     }
 
-    if (/\s/.test(A)) {
-        alert("A no puede tener espacios");
-        return false;
-    }
-    if (/\s/.test(B)) {
-        alert("B no puede tener espacios");
-        return false;
-    }
-
-    universo = Array.isArray(un) ? [...un] : ["null"];
-    conjA = A.split("");
-    conjB = B.split("");
-
     if(universo===null||vocales===null||conjC===null){
         alert("Error inesperado");
         return false;
     }
 
-    for(let i=0; i<conjA.length; i++){
-        if(!universo.includes(conjA[i].toLowerCase())){
-            alert(conjA[i]+" no estta en el universo, revisa A");
-            return false;
-        }
-        for(let j=0;j<conjA.length; j++){
-            if(conjA[i]===conjA[j] && i!==j){
-                alert(conjA[i]+" se repite en A");
-                return false;
-            }
-        }
-    }
-    for(let i=0; i<conjB.length; i++){
-        if(!universo.includes(conjB[i].toLowerCase())){
-            alert(conjB[i]+" no estta en el universo, revisa B");
-            return false;
-        }
-        for(let j=0;j<conjB.length; j++){
-            if(conjB[i]===conjB[j] && i!==j){
-                alert(conjB[i]+" se repite en A");
-                return false;
-            }
-        }
-    }
-    for(let i=0; i<conjC.length; i++){
-        if(!vocales.includes(conjC[i].toLowerCase())){
-            alert(conjC[i]+" no estta en el universo o no es una vocal, revisa C");
-            return false;
-        }
-        for(let j=0;j<conjC.length; j++){
-            if(conjC[i]===conjC[j] && i!==j){
-                alert(conjC[i]+" se repite en C");
-                return false;
-            }
-        }
-    }
+    conjA = [...new Set(conjA)];//quita duplicados
+    conjB = [...new Set(conjB)];//quita duplicados
+    conjC = [...new Set(conjC)];//quita duplicados
+    console.log(conjB)
 
     resultados={...operacionesDef()};
 
