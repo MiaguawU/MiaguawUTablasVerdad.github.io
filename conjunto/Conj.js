@@ -96,18 +96,19 @@ function operacionesDef(){
     return conjsRes;
 }
 
-function normalizar(conjunto,nombre) {
+function normalizar(conjunto, nombre) {
     if (/[^A-Za-zñÑ,\[\]\(\)\{\}\s]/.test(conjunto)) {
-    alert("Hay simbolos no validos en: "+nombre);
+    alert("Hay símbolos no válidos en: " + nombre);
     return false;
     }
 
     return conjunto
     .toLowerCase()
-    .replace(/[\[\]\(\)\{\}\s]/g, "")
-    .split(",")
-    .filter(Boolean);                 
+    .replace(/[\[\]\(\)\{\}\s,]/g, "") 
+    .split("") 
+    .filter(Boolean);
 }
+
 
 function existeEnUniverso(conjunto, nombre, vocals) {
     let un= [...universo];
@@ -145,7 +146,8 @@ export function validar(num,un,voc,A,B,C){
         conjA = [...universo];
     }
     else{
-        conjA=normalizar(A,"A");
+        conjA=[...normalizar(A,"A")];
+        conjA = [...new Set(conjA)];
         let existe= existeEnUniverso(conjA,"A");
 
         if(!existe){
@@ -161,7 +163,8 @@ export function validar(num,un,voc,A,B,C){
         conjB = [...universo];
     }
     else{
-        conjB=normalizar(B,"B");
+        conjB=[...normalizar(B,"B")];
+        conjB = [...new Set(conjB)];
         let existe= existeEnUniverso(conjB,"B");
 
         if(!existe){
@@ -178,7 +181,8 @@ export function validar(num,un,voc,A,B,C){
         conjC = [...vocales];
     }
     else{
-        conjC=normalizar(C,"C");
+        conjC=[...normalizar(C,"C")];
+        conjC = [...new Set(conjC)];
         let existe= existeEnUniverso(conjC,"C",true);
         if(!existe){
             return false;
@@ -203,9 +207,6 @@ export function validar(num,un,voc,A,B,C){
         return false;
     }
 
-    conjA = [...new Set(conjA)];
-    conjB = [...new Set(conjB)];
-    conjC = [...new Set(conjC)];
     console.log(conjB)
 
     resultados={...operacionesDef()};
