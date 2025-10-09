@@ -135,18 +135,18 @@ h3 {
     <div class="alineado">
       <h3 class="mor">n=</h3>
       <input type="number" id="n" placeholder="num letras">
-      <h3 class="vd" id="abc"></h3>
+      <h3 class="vd" id="abc">U= { a, b, c, d, e, f, g, h, i, j, k, l, m, n, ñ, o, p, q, r, s, t, u, v, w, x, y, z }</h3>
     </div>
     <br>
     <h3>Escriba letras dentro del universo sin repetir:</h3>
     <br>
     <div class="alineado">
       <h3 class="mor">A=</h3>
-      <input type="text" id="A" placeholder="escriba letras sin espacios" maxlength="27">
+      <input type="text" id="A" placeholder="escriba letras " maxlength="27">
     </div>
     <div class="alineado">
       <h3 class="mor">B=</h3>
-      <input type="text" id="B" placeholder="escriba letras sin espacios" maxlength="27">
+      <input type="text" id="B" placeholder="escriba letras " maxlength="27">
     </div>
     <br>
     <h3>Vocales:</h3>
@@ -154,7 +154,7 @@ h3 {
     <div class="alineado">
       <h3 class="mor">C=</h3>
       <input type="text" id="C" placeholder="escriba vocales" maxlength="5">
-      <h3 class="vd" id="voc"></h3>
+      <h3 class="vd" id="voc">{ a, e, i, o, u }</h3>
     </div>
     <div class="alineado">
     <button id="escVoc">Escribir vocales</button>
@@ -204,8 +204,12 @@ h3 {
     num.addEventListener("input", () => {
       const valor = parseInt(num.value);
 
+      univ.textContent = "";
+      vocl.textContent = "";
+
       if (isNaN(valor)) {
-        univ.textContent = "";
+        univ.textContent= `U= { ${abc.join(", ")} }`;
+        vocl.textContent= `{ ${vocales.join(", ")} }`;
         return;
       }
 

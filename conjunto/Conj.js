@@ -75,7 +75,7 @@ function operacionesDef(){
 
     console.log(conjC);
     //pri
-    der=[...resolver([...conjC],[...conjB],"UNION")];
+    der=[...resolver([...conjB],[...conjC],"UNION")];
     console.log("derecha primera");
     console.log(der);
     izq=[...conjA];
@@ -96,9 +96,39 @@ function operacionesDef(){
     return conjsRes;
 }
 
+function normalizar(conjunto,nombre) {
+    if (/[^A-Za-zñÑ,\[\]\(\)\{\}\s]/.test(conjunto)) {
+    alert("Hay simbolos no validos en: "+nombre);
+    return false;
+    }
+
+    return conjunto
+    .replace(/[\[\]\(\)\{\}\s]/g, "")
+    .split(",")
+    .filter(Boolean);                 
+}
+
+function existeEnUniverso(conjunto, nombre, vocals) {
+    let un= [...universo];
+    if(!conjunto){
+        return false;
+    }
+    if(vocals){
+        un=[...vocales];
+    }
+    let invalidos = conjunto.filter(el => !un.includes(el.toLowerCase()));
+
+    if (invalidos.length) {
+    alert(`Lo siguiente no es en el universo: ${invalidos.join(", ")} (en ${nombre})`);
+    return false;
+    }
+    return true;
+}
+
 export function validar(num,un,voc,A,B,C){
     let resultados;
     universo = Array.isArray(un) ? [...un] : ["null"];
+    vocales= Array.isArray(voc) ? [...voc] : ["null"];
 
     if(num===""){
         n = 27;
@@ -110,64 +140,48 @@ export function validar(num,un,voc,A,B,C){
         console.log("A es nada");
         console.log(A);
     }
+    else if(A==="univ0"){
+        conjA = [...universo];
+    }
     else{
-        conjA = A.split("");
-        if (/\s/.test(A)) {
-            alert("A no puede tener espacios");
+        conjA=normalizar(A,"A");
+        let existe= existeEnUniverso(conjA,"A");
+
+        if(!existe){
             return false;
-        }
-        for(let i=0; i<conjA.length; i++){
-            if(!universo.includes(conjA[i].toLowerCase())){
-                alert(conjA[i]+" no estta en el universo, revisa A");
-                return false;
-            }
-            for(let j=0;j<conjA.length; j++){
-                if(conjA[i]===conjA[j] && i!==j){
-                    alert(conjA[i]+" se repite en A");
-                    return false;
-                }
-            }
         }
     }
     console.log("Valor de B:", B, "tipo:", typeof B);
-    if(B.trim()===""){
+    if(B===""){
         console.log("B es nada");
         console.log(B);
     }
+    else if(B==="univ0"){
+        conjB = [...universo];
+    }
     else{
-        conjB = B.split("");
-        if (/\s/.test(B)) {
-            alert("B no puede tener espacios");
+        conjB=normalizar(B,"B");
+        let existe= existeEnUniverso(conjB,"B");
+
+        if(!existe){
             return false;
-        }
-            
-        for(let i=0; i<conjB.length; i++){
-            if(!universo.includes(conjB[i].toLowerCase())){
-                alert(conjB[i]+" no estta en el universo, revisa B");
-                return false;
-            }
         }
     }
     console.log(C);
     if(C===""){
-        console.log("C es nada");
+        console.log("C es nada, vocales automaticas");
         conjC = Array.isArray(voc) ? [...voc] : ["null"];
-        vocales= Array.isArray(voc) ? [...voc] : ["null"];
         console.log(C);
-        if (/\s/.test(C)) {
-            alert("C no puede tener espacios");
-            return false;
-        }
-        for(let i=0; i<conjC.length; i++){
-            if(!vocales.includes(conjC[i].toLowerCase())){
-                alert(conjC[i]+" no estta en el universo o no es una vocal, revisa C");
-                return false;
-            }
-        }
+    }
+    else if(C==="univ0"){
+        conjC = [...vocales];
     }
     else{
-        conjC = C.split("");
-        vocales= Array.isArray(voc) ? [...voc] : ["null"];
+        conjC=normalizar(C,"C");
+        let existe= existeEnUniverso(conjC,"C",true);
+        if(!existe){
+            return false;
+        }
     }
 
     if(isNaN(n)){
@@ -188,9 +202,9 @@ export function validar(num,un,voc,A,B,C){
         return false;
     }
 
-    conjA = [...new Set(conjA)];//quita duplicados
-    conjB = [...new Set(conjB)];//quita duplicados
-    conjC = [...new Set(conjC)];//quita duplicados
+    conjA = [...new Set(conjA)];
+    conjB = [...new Set(conjB)];
+    conjC = [...new Set(conjC)];
     console.log(conjB)
 
     resultados={...operacionesDef()};
