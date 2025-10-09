@@ -103,6 +103,7 @@ function normalizar(conjunto,nombre) {
     }
 
     return conjunto
+    .toLowerCase()
     .replace(/[\[\]\(\)\{\}\s]/g, "")
     .split(",")
     .filter(Boolean);                 
