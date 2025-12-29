@@ -28,7 +28,7 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
     //console.log(colmOrg);
     let cantColm=0;
 
-    while(termino===false){
+    while(!termino){
         cantColm++;
         if (cantColm >= 200) {
             console.warn("Limite 200 alcanzado");
@@ -45,8 +45,8 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                 for (let j=i; j< n; j++){
                     let bloq=2**(n-1-j);//bloque es como el donde van a ser puros v o f
                     for (let k=0; k< filas; k++){
-                        let valor = Math.floor(k / bloq) % 2 === 0 ? 0 : 1;//ej. 3/2 = 1.5 pero red hacia abajo 1/2 = 0.5 es es igual a 0? no entonces 1 osea F
-                        //redondeamos hacia abajo y sacamos el reciduo, si es 0 es verdad
+                        let valor = Math.floor(k / bloq) % 2 === 0 ? 1 : 0;//ej. 3/2 = 1.5 pero red hacia abajo 1/2 = 0.5 es es igual a 0? no entonces 1 osea F
+                        //redondeamos hacia abajo y sacamos el residuo, si es 0 es verdad
                         colmOrg[j].push(valor);
                     }
                 }
@@ -301,7 +301,7 @@ export function MandarAResolverSoloC(arrarSinColumnas,nn,pp,colmEsp,tablaSi){//p
                         izq=[...colmOrg[columna.izquierda]];
                     }
                     else{
-                        throw new Error ("no ha izq en pv ya ru sabe")
+                        throw new Error ("no ha izq en pv ya tu sabe")//este programa no es nada profesional xdd
                     }
 
                     if (cerradoEn !== null) {

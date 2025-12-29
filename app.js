@@ -9,7 +9,7 @@ import { Resolver } from "./funciones/Resolver.js";
 
 function OrdenEspecial(arrTemp){//validado
     const array = Array.isArray(arrTemp) ? [...arrTemp] : ["null"];
-    let termino= false;
+    
     const abc = [
         "a","b","c","d","e","f","g","h","i","j","k","l","m",
         "n","o","p","q","r","s","t","u","w","x","y","z"
@@ -64,7 +64,7 @@ function Generar(expresion) {
     console.log(pp)
     let colmOrg =[...GenerarColumnasDeTabla(arrbs,n,pp)];
     let columnaEspecial =[];
-    let {ap,ap4}=0;
+    let ap,ap4=0;
         
     for (let i=0; i< colmOrg.length; i++){
         ap= i+1;

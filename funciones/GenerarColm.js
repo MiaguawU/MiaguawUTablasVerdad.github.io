@@ -33,7 +33,7 @@ export function GenerarColumnas(arrPorProcesar,arrPorCompletar) {//valido
                             
                         }
                         else{
-                            hayAlgunOp=true
+                            hayAlgunOp=true;
                         }
                     }
                     else{

@@ -1,0 +1,141 @@
+<svg width="300" height="200">
+
+  <!-- Arista -->
+  <line x1="80" y1="100" x2="180" y2="100"
+        stroke="black" stroke-width="2"/>
+
+  <!-- Nodo A -->
+  <circle cx="80" cy="100" r="18"
+          fill="white" stroke="black"
+          onclick="toggle(this)"/>
+
+  <!-- Nodo B -->
+  <circle cx="180" cy="100" r="18"
+          fill="white" stroke="black"
+          onclick="toggle(this)"/>
+
+</svg>
+
+<script>
+function toggle(nodo) {
+  const activo = nodo.getAttribute("data-activo") === "true";
+  nodo.setAttribute("data-activo", !activo);
+  nodo.setAttribute("fill", activo ? "white" : "lightgreen");
+}
+</script>
+
+/*aaaaaaaaaaaaaaaaaaaaaaaa
+<style>
+.contenedor {
+    width: 550px;
+    height: 550px;
+
+}
+
+#svg {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+svg * {
+  pointer-events: visiblePainted;
+}
+
+</style>
+<div class="contenedor">
+  <svg id="svg" viewBox="0 0 550 550"></svg>
+</div>
+
+
+<script>
+const svg = document.getElementById("svg");
+
+const cx = 275;
+const cy = 275;
+const r = 200;
+const puntos = 50;
+
+for (let i = 0; i < puntos; i++) {
+  const theta = (2 * Math.PI / puntos) * i;
+
+  const x = cx + r * Math.cos(theta);
+  const y = cy + r * Math.sin(theta);
+
+  // 🔹 Punto del círculo
+  const punto = crearCirculo(x, y, 3);
+  punto.style.cursor = "pointer";
+
+punto.addEventListener("click", () => {
+  toggleColor(punto);
+});
+  svg.appendChild(punto);
+
+  // 🔹 Forma compuesta (grupo)
+  const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+  // mover el grupo al punto
+  grupo.setAttribute(
+    "transform",
+    `translate(${x}, ${y}) rotate(${theta * 180 / Math.PI})`
+  );
+
+  // línea hacia afuera
+  const linea = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  linea.setAttribute("x1", 0);
+  linea.setAttribute("y1", 0);
+  linea.setAttribute("x2", 20);
+  linea.setAttribute("y2", 0);
+  linea.setAttribute("stroke", "black");
+
+  // rectángulo al final
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rect.setAttribute("x", 20);
+  rect.setAttribute("y", -6);
+  rect.setAttribute("width", 14);
+  rect.setAttribute("height", 12);
+  rect.setAttribute("fill", "none");
+  rect.setAttribute("stroke", "black");
+
+  grupo.appendChild(linea);
+  grupo.appendChild(rect);
+  grupo.style.cursor = "pointer";
+
+grupo.addEventListener("click", (e) => {
+  e.stopPropagation(); // evita conflictos
+  toggleColor(grupo);
+});
+
+  svg.appendChild(grupo);
+}
+
+// 🔹 función helper
+function crearCirculo(x, y, r) {
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", x);
+  c.setAttribute("cy", y);
+  c.setAttribute("r", r);
+  c.setAttribute("fill", "black");
+  return c;
+}
+function toggleColor(el, color1 = "black", color2 = "red") {
+  const actual = el.getAttribute("data-color") || color1;
+  const nuevo = actual === color1 ? color2 : color1;
+
+  el.setAttribute("data-color", nuevo);
+
+  if (el.tagName === "circle") {
+    el.setAttribute("fill", nuevo);
+  } else {
+    el.querySelectorAll("*").forEach(child => {
+      if (child.hasAttribute("stroke"))
+        child.setAttribute("stroke", nuevo);
+      if (child.hasAttribute("fill") && child.getAttribute("fill") !== "none")
+        child.setAttribute("fill", nuevo);
+    });
+  }
+}
+
+</script>
+
+*/

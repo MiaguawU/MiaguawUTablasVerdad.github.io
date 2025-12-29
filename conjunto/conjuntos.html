@@ -138,7 +138,7 @@ h3 {
       <h3 class="vd" id="abc">U= { a, b, c, d, e, f, g, h, i, j, k, l, m, n, ñ, o, p, q, r, s, t, u, v, w, x, y, z }</h3>
     </div>
     <br>
-    <h3>Escriba letras dentro del universo sin repetir:</h3>
+    <h3>Escriba letras dentro del universo :</h3>
     <br>
     <div class="alineado">
       <h3 class="mor">A=</h3>
@@ -166,6 +166,22 @@ h3 {
   <h2 style="margin-top: 30px;">Resultados:</h2>
 
   <div class="bloque" id="resu" style="margin-top: 10px;">
+    <div class="alineado">
+      <h3 class="ros">Universo= </h3>
+      <h3 class="vd" id="uni"></h3>
+    </div>
+    <div class="alineado">
+      <h3 class="ros">Vocales(C)= </h3>
+      <h3 class="vd" id="conjC"></h3>
+    </div>
+    <div class="alineado">
+      <h3 class="ros">A= </h3>
+      <h3 class="vd" id="conjA"></h3>
+    </div>
+    <div class="alineado">
+      <h3 class="ros">B= </h3>
+      <h3 class="vd" id="conjB"></h3>
+    </div>
     <div class="alineado">
       <h3 class="ros">[ (A∩B) U (A∩C) ]c =</h3>
       <h3 class="vd" id="pri"></h3>
@@ -250,6 +266,10 @@ h3 {
       const pri = document.getElementById("pri");
       const seg = document.getElementById("seg");
       const ter = document.getElementById("ter");
+      const un= document.getElementById("uni");
+      const conA = document.getElementById("conjA");
+      const conB = document.getElementById("conjB");
+      const conC = document.getElementById("conjC");
 
       if(voca.length===0){
         console.log("voca length 0")
@@ -269,6 +289,10 @@ h3 {
       pri.textContent= `{ ${resultados.pri.join(", ")} }`;
       seg.textContent= `{ ${resultados.seg.join(", ")} }`;
       ter.textContent= `{ ${resultados.ter.join(", ")} }`;
+      un.textContent= `{ ${resultados.un.join(", ")} }`;
+      conA.textContent= `{ ${resultados.conA.join(", ")} }`;
+      conB.textContent= `{ ${resultados.conB.join(", ")} }`;
+      conC.textContent= `{ ${resultados.conC.join(", ")} }`;
 
       block.style.display="block";
       block.scrollIntoView({ behavior: "smooth", block: "start" });

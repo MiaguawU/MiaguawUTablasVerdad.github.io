@@ -12,8 +12,8 @@ export function DesConvertir(tabla) {//validado
 
     return tabla.map(fila => 
         fila.map(celda => {
-            if (celda === 0) return "V";//vamos colovando el nuevo valor a esa celdda
-            if (celda === 1) return "F";
+            if (celda === 1) return "V";//vamos colovando el nuevo valor a esa celdda
+            if (celda === 0) return "F";
 
             if (typeof celda === "string") {
                 return celda

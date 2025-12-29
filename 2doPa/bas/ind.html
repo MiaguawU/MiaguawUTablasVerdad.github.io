@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Matemática Avanzada</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧮 Calculadora Matemática</h1>
+            <p>Herramientas avanzadas para cálculos numéricos</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="division">División</button>
+            <button class="tab" data-tab="mcd">MCD</button>
+            <button class="tab" data-tab="mcm">MCM</button>
+            <button class="tab" data-tab="bases">Conversión Bases</button>
+            <button class="tab" data-tab="eucl">Euclides</button>
+            <button class="tab" data-tab="bezout">Bezout</button>
+            <button class="tab" data-tab="diof">Ecuación Diofántica</button>
+            <button class="tab" data-tab="primo">Primalidad</button>
+        </div>
+
+        <div class="content">
+            <!-- División Algorítmica -->
+            <div id="division" class="function-section active">
+                <h2>División Algorítmica</h2>
+                <p class="description">Calcula cociente y residuo: a = b × q + r</p>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Dividendo (a):</label>
+                        <input type="number" id="div_a" placeholder="Ej: 25">
+                    </div>
+                    <div class="input-group">
+                        <label>Divisor (b):</label>
+                        <input type="number" id="div_b" placeholder="Ej: 7">
+                    </div>
+                </div>
+                <button onclick="handleDivision()">Calcular</button>
+                <div id="result_div" class="result"></div>
+            </div>
+
+            <!-- MCD -->
+            <div id="mcd" class="function-section">
+                <h2>Máximo Común Divisor (MCD)</h2>
+                <p class="description">Calcula el MCD de 2 a 5 números</p>
+                <div class="input-group">
+                    <label>Cantidad de números:</label>
+                    <select id="mcd_count" onchange="updateMCDInputs()">
+                        <option value="2">2 números</option>
+                        <option value="3">3 números</option>
+                        <option value="4">4 números</option>
+                        <option value="5">5 números</option>
+                    </select>
+                </div>
+                <div id="mcd_inputs" class="input-row"></div>
+                <button onclick="handleMCD()">Calcular MCD</button>
+                <div id="result_mcd" class="result"></div>
+            </div>
+
+            <!-- MCM -->
+            <div id="mcm" class="function-section">
+                <h2>Mínimo Común Múltiplo (MCM)</h2>
+                <p class="description">Calcula el MCM de 2 a 5 números</p>
+                <div class="input-group">
+                    <label>Cantidad de números:</label>
+                    <select id="mcm_count" onchange="updateMCMInputs()">
+                        <option value="2">2 números</option>
+                        <option value="3">3 números</option>
+                        <option value="4">4 números</option>
+                        <option value="5">5 números</option>
+                    </select>
+                </div>
+                <div id="mcm_inputs" class="input-row"></div>
+                <button onclick="handleMCM()">Calcular MCM</button>
+                <div id="result_mcm" class="result"></div>
+            </div>
+
+            <!-- Conversión de Bases -->
+            <div id="bases" class="function-section">
+                <h2>Conversión entre Bases</h2>
+                <p class="description">Convierte números entre bases 2-36</p>
+                <div class="input-group">
+                    <label>Número:</label>
+                    <input type="text" id="base_num" placeholder="Ej: 101 o FF">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Base origen (2-36):</label>
+                        <input type="number" id="base_orig" placeholder="Ej: 2" min="2" max="36">
+                    </div>
+                    <div class="input-group">
+                        <label>Base destino (2-36):</label>
+                        <input type="number" id="base_dest" placeholder="Ej: 10" min="2" max="36">
+                    </div>
+                </div>
+                <button onclick="handleConversionBase()">Convertir</button>
+                <div id="result_base" class="result"></div>
+            </div>
+
+            <!-- Algoritmo de Euclides -->
+            <div id="eucl" class="function-section">
+                <h2>Algoritmo de Euclides</h2>
+                <p class="description">Calcula MCD mostrando cada paso del proceso</p>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Número a:</label>
+                        <input type="number" id="eucl_a" placeholder="Ej: 48">
+                    </div>
+                    <div class="input-group">
+                        <label>Número b:</label>
+                        <input type="number" id="eucl_b" placeholder="Ej: 18">
+                    </div>
+                </div>
+                <button onclick="handleEuclides()">Calcular</button>
+                <div id="result_eucl" class="result"></div>
+            </div>
+
+            <!-- Identidad de Bezout -->
+            <div id="bezout" class="function-section">
+                <h2>Identidad de Bezout</h2>
+                <p class="description">Encuentra x, y tal que: ax + by = MCD(a,b)</p>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Número a:</label>
+                        <input type="number" id="bez_a" placeholder="Ej: 48">
+                    </div>
+                    <div class="input-group">
+                        <label>Número b:</label>
+                        <input type="number" id="bez_b" placeholder="Ej: 18">
+                    </div>
+                </div>
+                <button onclick="handleBezout()">Calcular</button>
+                <div id="result_bez" class="result"></div>
+            </div>
+
+            <!-- Ecuación Diofántica -->
+            <div id="diof" class="function-section">
+                <h2>Ecuación Diofántica Lineal</h2>
+                <p class="description">Resuelve: ax + by = c</p>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Coeficiente a:</label>
+                        <input type="number" id="diof_a" placeholder="Ej: 3">
+                    </div>
+                    <div class="input-group">
+                        <label>Coeficiente b:</label>
+                        <input type="number" id="diof_b" placeholder="Ej: 5">
+                    </div>
+                    <div class="input-group">
+                        <label>Término c:</label>
+                        <input type="number" id="diof_c" placeholder="Ej: 7">
+                    </div>
+                </div>
+                <button onclick="handleDiofantica()">Resolver</button>
+                <div id="result_diof" class="result"></div>
+            </div>
+
+            <!-- Test de Primalidad -->
+            <div id="primo" class="function-section">
+                <h2>Test de Primalidad</h2>
+                <p class="description">Verifica si un número es primo</p>
+                <div class="input-group">
+                    <label>Número a verificar:</label>
+                    <input type="number" id="primo_num" placeholder="Ej: 17">
+                </div>
+                <button onclick="handlePrimalidad()">Verificar</button>
+                <div id="result_primo" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="ui.js"></script>
+</body>
+</html>

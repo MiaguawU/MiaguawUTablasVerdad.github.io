@@ -1,0 +1,5 @@
+1-Mejorar tabla de verdad, 
+2-Aprender a usar SVG con html y javascript
+3-Adaptar lo hecho a lo pedido
+4-conectar los progrmas entre siYAAAAA
+5-Si sale mal, usar el viejo

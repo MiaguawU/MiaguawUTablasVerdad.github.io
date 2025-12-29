@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafos</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Grafos</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="numero-n">Modulo n:</label>
+                <input type="number" id="numero-n" min="1" max="51" placeholder="Ingresa n">
+            </div>
+            <div class="input-group">
+                <label for="numero-m">Número Natural m:</label>
+                <input type="number" id="numero-m" min="1" max="51" placeholder="Ingresa m">
+            </div>
+            <button class="btn-generar" id="enviar">Generar Grafos</button>
+        </div>
+
+        <div class="results-section">
+            <div class="grafico-container">
+                <div class="ecuacion-box">
+                    <h3>Relación 1:</h3>
+                    <p id="ecuacion1">[X]n * [y]n = [m]n</p>
+                </div>
+                <div class="caracteristicas">
+                    <h3 id="carH">Características del Grafo 1:</h3>
+                    <p id="caract1">none</p>
+                </div>
+                <button class="btn-descargar" id="descargar-g1">Descargar Grafo 1</button>
+                <svg id="grafo1" viewBox="0 0 600 600"></svg>
+            </div>
+
+            <div class="grafico-container">
+                <div class="ecuacion-box">
+                    <h3>Relación 2:</h3>
+                    <p id="ecuacion2">[X]n + [y]n = [m]n</p>
+                </div>
+                <div class="caracteristicas">
+                    <h3 id="carH">Características del Grafo 2:</h3>
+                    <p id="caract2">none</p>
+                </div>
+                <button class="btn-descargar" id="descargar-g2">Descargar Grafo 2</button>
+                <svg id="grafo2" viewBox="0 0 600 600"></svg>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { dir_grafos } from './app.js';
+        const graf1 = document.getElementById("grafo1")
+        const graf2 = document.getElementById("grafo2")
+        
+        async function graf(){
+            //que haremos?
+            //visualizara el grafo
+            //mandara inputs 
+            //resivira los grafos
+            const n = parseInt(document.getElementById('numero-n').value);
+            const m = parseInt(document.getElementById('numero-m').value);
+
+            if (!n || !m) {
+                alert('Por favor, ingresa ambos números');
+                return;
+            }
+            if(m>=n){
+                alert("m debe ser menor que n");
+                return;
+            }
+
+            try {
+            const { grafo1, grafo2 } = await dir_grafos(n, m, graf1, graf2);
+
+            document.getElementById('caract1').innerHTML = `
+                <b>Simétrica:</b> ${grafo1.simetrica.es ? "SI" : "NO, " + grafo1.simetrica.porque} <br>
+                <b>Reflexiva:</b> ${grafo1.reflexiva.es ? "SI" : "NO, " + grafo1.reflexiva.porque} <br>
+                <b>Transitiva:</b> ${grafo1.transitiva.es ? "SI" : "NO, " + grafo1.transitiva.porque} <br>
+                <b>Antisimétrica:</b> ${grafo1.antisimetrica.es ? "SI" : "NO, " + grafo1.antisimetrica.porque}
+            `;
+
+            document.getElementById('caract2').innerHTML = `
+                <b>Simétrica:</b> ${grafo2.simetrica.es ? "SI" : "NO, " + grafo2.simetrica.porque} <br>
+                <b>Reflexiva:</b> ${grafo2.reflexiva.es ? "SI" : "NO, " + grafo2.reflexiva.porque} <br>
+                <b>Transitiva:</b> ${grafo2.transitiva.es ? "SI" : "NO, " + grafo2.transitiva.porque} <br>
+                <b>Antisimétrica:</b> ${grafo2.antisimetrica.es ? "SI" : "NO, " + grafo2.antisimetrica.porque}
+            `;
+
+            } catch (error) {
+                console.error("Error al generar los grafos:", error);
+            }
+            
+        }
+
+        function descargarSVG(svgElement, nombreArchivo) {
+            // 1. Serializar el SVG a texto XML
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svgElement);
+
+            // 2. Asegurar que tenga el namespace de XML (necesario para que abra bien en otros programas)
+            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+
+            // 3. Crear un Blob (archivo virtual)
+            const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+
+            // 4. Crear un link temporal y hacerle clic
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = nombreArchivo;
+            document.body.appendChild(link);
+            link.click();
+            
+            // 5. Limpieza
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+    // ... dentro del script ...
+
+    document.getElementById("descargar-g1").addEventListener("click", () => {
+        descargarSVG(graf1, "grafo_producto.svg");
+    });
+
+    document.getElementById("descargar-g2").addEventListener("click", () => {
+        descargarSVG(graf2, "grafo_suma.svg");
+    });
+            
+    document.getElementById("enviar").addEventListener("click", graf);
+    </script>
+</body>
+</html>

@@ -23,11 +23,11 @@ export function Resolver(operador,columnaIzquierda,columnaDerecha,filas,nombreCo
     }
     if(op==="OR"){
         for(let i=1; i<fi; i++){//empezamos en 1 para no usar el nombre de columna
-            if(izquierda[i]===0 || derecha[i]===0){
-                resultado.push(0);
+            if(izquierda[i]===1 || derecha[i]===1){
+                resultado.push(1);
             }
             else{
-                resultado.push(1);
+                resultado.push(0);
             }
         }
         //console.log("Resultado con OR, izq: "+izquierda+" derec: "+derecha);
@@ -37,11 +37,11 @@ export function Resolver(operador,columnaIzquierda,columnaDerecha,filas,nombreCo
     }
     if(op==="AND"){
         for(let i=1; i<fi; i++){//empezamos en 1 para no usar el nombre de columna
-            if(izquierda[i]===0 && derecha[i]===0){
-                resultado.push(0);
+            if(izquierda[i]===1 && derecha[i]===1){
+                resultado.push(1);
             }
             else{
-                resultado.push(1);
+                resultado.push(0);
             }
         }
         //console.log("Resultado con AND, izq: "+izquierda+" derec: "+derecha);
@@ -50,11 +50,11 @@ export function Resolver(operador,columnaIzquierda,columnaDerecha,filas,nombreCo
     }
     if(op==="THEN"){
         for(let i=1; i<fi; i++){//empezamos en 1 para no usar el nombre de columna
-            if(izquierda[i]===0 && derecha[i]===1){
-                resultado.push(1);
+            if(izquierda[i]===1 && derecha[i]===0){
+                resultado.push(0);
             }
             else{
-                resultado.push(0);
+                resultado.push(1);
             }
         }
         //console.log("Resultado con THEN, izq: "+izquierda+" derec: "+derecha);
@@ -65,10 +65,10 @@ export function Resolver(operador,columnaIzquierda,columnaDerecha,filas,nombreCo
     if(op==="IF"){
         for(let i=1; i<fi; i++){//empezamos en 1 para no usar el nombre de columna
             if(izquierda[i]===derecha[i]){
-                resultado.push(0);
+                resultado.push(1);
             }
             else{
-                resultado.push(1);
+                resultado.push(0);
             }
         }
         console.log("Resultado con IF, izq: "+izquierda+" derec: "+derecha);

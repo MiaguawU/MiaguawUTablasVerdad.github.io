@@ -70,7 +70,11 @@ function operacionesDef(){
     let conjsRes = {
         pri: [],//[A,INTER,(B,UNION,C)]c
         seg: [],//A,INTER,(C,DIFF,B)
-        ter: []//(Ac ⊕ Bc) ⊕ Cc 
+        ter: [],//(Ac ⊕ Bc) ⊕ Cc 
+        un:[...universo],
+        conA:[...conjA],
+        conB:[...conjB],
+        conC:[...conjC],
     };
 
     console.log(conjC);
