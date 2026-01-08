@@ -1,141 +1,258 @@
-<svg width="300" height="200">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador Lógico Automático</title>
+    <style>
+        #canvas-container { width: 100%; height: 900px; border: 1px solid #ccc; overflow: auto; background-color: #f4f4f4; }
+        #logic-svg { background-color: white; display: block; margin: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .gate { fill: white; fill-opacity: 0.9; }
+        .wire { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .text-label { font-family: 'Monaco', 'Consolas', monospace; font-size: 14px; font-weight: bold; }
+        .output-label { font-family: sans-serif; font-size: 16px; font-weight: bold; }
+    </style>
+</head>
+<body>
 
-  <!-- Arista -->
-  <line x1="80" y1="100" x2="180" y2="100"
-        stroke="black" stroke-width="2"/>
+    <div id="canvas-container">
+        <svg id="logic-svg" width="1400" height="1200"></svg>
+    </div>
 
-  <!-- Nodo A -->
-  <circle cx="80" cy="100" r="18"
-          fill="white" stroke="black"
-          onclick="toggle(this)"/>
+    <script>
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.getElementById("logic-svg");
+    const connectionPoints = {}; 
+    const colores = {};
 
-  <!-- Nodo B -->
-  <circle cx="180" cy="100" r="18"
-          fill="white" stroke="black"
-          onclick="toggle(this)"/>
+    const config = {
+        busX: 60,
+        busSpacing: 35,
+        gateColumnX: 500,
+        orColumnX: 850,
+        strokeWidth: 2.5,
+        verticalGap: 80 
+    };
 
-</svg>
+    // --- 1. TU FUNCIÓN DE LÓGICA (MODIFICADA PARA RETORNAR VARIABLES) ---
+    function procesarFormula(formula) {
+        const circ = new Map();
+        let cont_NOT = 0, cont_AND = 0, cont_OR = 0;
+        const esFNC = formula.includes('·') || (formula.includes('(') && formula.includes('+'));
+        const sepExterno = esFNC ? '·' : '+';
+        const comp_inter = esFNC ? "OR" : "AND";
+        const comp_final = esFNC ? "AND" : "OR";
 
-<script>
-function toggle(nodo) {
-  const activo = nodo.getAttribute("data-activo") === "true";
-  nodo.setAttribute("data-activo", !activo);
-  nodo.setAttribute("fill", activo ? "white" : "lightgreen");
+        let term_No_proceso = formula.split(sepExterno).map(t => t.trim().replace(/[()]/g, ''));
+        let outs_inter = [];
+        let all_variables = new Set();
+
+        term_No_proceso.forEach((termino) => {
+            let patron = /[a-zA-Z]\d*'?/g;
+            let variables = termino.match(patron);
+            if (!variables) return;
+
+            let inputs_comp = [];
+            variables.forEach(v => {
+                const nombreLimpio = v.replace("'", "");
+                all_variables.add(nombreLimpio);
+                inputs_comp.push(v);
+            });
+
+            if (inputs_comp.length > 1) {
+                let id = comp_inter === "AND" ? `AND_${++cont_AND}` : `OR_${++cont_OR}`;
+                circ.set(id, { tipo: comp_inter, inputs: inputs_comp });
+                outs_inter.push(id);
+            } else {
+                outs_inter.push(inputs_comp[0]);
+            }
+        });
+
+        if (outs_inter.length > 1) {
+            let id_final = comp_final === "OR" ? `OR_FINAL` : `AND_FINAL`;
+            circ.set(
+                id_final, { 
+                    tipo: comp_final, 
+                    inputs: outs_inter, 
+                    esFinal: true 
+                }
+            );
+        }
+
+        return { mapa: Object.fromEntries(circ), vars: Array.from(all_variables).sort() };
+    }
+
+    // --- 2. MOTOR GRÁFICO ---
+
+    function autoLayout(mapa) {
+        let currentY = 100;
+        const keys = Object.keys(mapa);
+        const gatesInternas = keys.filter(k => !mapa[k].esFinal);
+        const gateFinal = keys.find(k => mapa[k].esFinal);
+
+        gatesInternas.forEach(id => {
+            mapa[id].posY = currentY;
+            currentY += config.verticalGap;
+        });
+
+        if (gateFinal) {
+            const sumY = gatesInternas.reduce((acc, id) => acc + mapa[id].posY, 0);
+            mapa[gateFinal].posY = sumY / gatesInternas.length;
+        }
+    }
+
+    function gen_colores(variables, mapaLogico) {
+        variables.forEach((v, i) => {
+            const hue = (i * (360 / variables.length)) % 360;
+            colores[v] = `hsl(${hue}, 70%, 45%)`;
+            colores[v + "'"] = `hsl(${hue}, 35%, 70%)`;
+        });
+        Object.keys(mapaLogico).forEach((id, i) => {
+            colores[id] = `hsl(210, 50%, ${30 + (i * 5)}%)`; 
+        });
+    }
+
+    function getColor(id) { return colores[id] || "#444"; }
+
+    function createSVGElement(tag, attrs) {
+        const el = document.createElementNS(svgNS, tag);
+        for (let k in attrs) el.setAttribute(k, attrs[k]);
+        return el;
+    }
+
+    function gen_inputs(variables, limitesY) {
+        variables.forEach((v, i) => {
+            const xNormal = config.busX + (i * config.busSpacing * 2.5);
+            const xNot = xNormal + config.busSpacing;
+            const yTop = 40;
+            
+            svg.appendChild(createSVGElement("line", { x1: xNormal, y1: yTop, x2: xNormal, y2: limitesY[v], stroke: getColor(v), "stroke-width": config.strokeWidth, class: "wire" }));
+            connectionPoints[v] = { x: xNormal };
+            
+            const label = createSVGElement("text", { x: xNormal - 5, y: yTop - 10, class: "text-label", fill: getColor(v) });
+            label.textContent = v;
+            svg.appendChild(label);
+
+            if (limitesY[v + "'"] > 80) {
+                const yNot = yTop + 30;
+                svg.appendChild(createSVGElement("circle", { cx: xNormal, cy: yNot, r: 4, fill: getColor(v) }));
+                svg.appendChild(createSVGElement("line", { x1: xNormal, y1: yNot, x2: xNot - 22, y2: yNot, stroke: getColor(v), "stroke-width": config.strokeWidth, class: "wire" }));
+                svg.appendChild(createSVGElement("polygon", { points: `${xNot-22},${yNot-10} ${xNot-22},${yNot+10} ${xNot-7},${yNot}`, fill: "white", stroke: getColor(v), "stroke-width": 2 }));
+                svg.appendChild(createSVGElement("circle", { cx: xNot - 4, cy: yNot, r: 3.5, fill: "white", stroke: getColor(v), "stroke-width": 2 }));
+                svg.appendChild(createSVGElement("line", { x1: xNot, y1: yNot, x2: xNot, y2: limitesY[v + "'"], stroke: getColor(v + "'"), "stroke-width": config.strokeWidth, class: "wire" }));
+                connectionPoints[v + "'"] = { x: xNot };
+            }
+        });
+    }
+
+    function gen_AND(esFinal, comp, id) {
+        let inputCount=comp.inputs.length;
+        let y= comp.posY;
+        let x= esFinal ? config.orColumnX : config.gateColumnX;
+        const color = getColor(id);
+        const pathData = `M ${x} ${y} L ${x+40} ${y} Q ${x+60} ${y+25} ${x+40} ${y+50} L ${x} ${y+50} Z`;
+        svg.appendChild(createSVGElement("path", { d: pathData, class: "gate", stroke: color, "stroke-width": config.strokeWidth }));
+        connectionPoints[id] = { x: x + 55, y: y + 25 }; 
+        return { inX: x, inYStart: y + 10, spacing: 30 / (inputCount - 1 || 1) };
+    }
+
+    function gen_OR(esFinal, comp, id) {
+        let inputCount=comp.inputs.length;
+        let y= comp.posY;
+        let x= esFinal ? config.orColumnX : config.gateColumnX;
+        const color = getColor(id);
+        const spacing = inputCount > 5 ? 20 : 30;
+        const height = Math.max(50, (inputCount - 1) * spacing + 40);
+        const midY = height / 2;
+        const width = 70;
+        const pathData = `M ${x} ${y} Q ${x + 20} ${y + midY} ${x} ${y + height} Q ${x + width * 0.7} ${y + height} ${x + width} ${y + midY} Q ${x + width * 0.7} ${y} ${x} ${y} Z`;
+        svg.appendChild(createSVGElement("path", { d: pathData, class: "gate", stroke: color, "stroke-width": config.strokeWidth }));
+        connectionPoints[id] = { x: x + width, y: y + midY };
+        return { inX: x, inYStart: y + 20, spacing: spacing };
+    }
+
+    function conectar(fromId, esFinal, info, i) {
+        let toX=esFinal ? config.orColumnX : config.gateColumnX;
+        let toY=info.inYStart + (i * info.spacing);
+        // Limpiamos el ID por si viene como OUT_AND_1
+        const cleanId = fromId.replace("OUT_", "");
+        const from = connectionPoints[cleanId] || connectionPoints[fromId];
+        if (!from) return;
+        
+        const color = getColor(fromId);
+        const startX = from.x;
+        const startY = (from.y !== undefined) ? from.y : toY;
+        
+        if (from.y === undefined) svg.appendChild(createSVGElement("circle", { cx: startX, cy: startY, r: 4, fill: color }));
+        
+        const midX = startX + (toX - startX) * 0.5;
+        const points = `${startX},${startY} ${midX},${startY} ${midX},${toY} ${toX},${toY}`;
+        svg.appendChild(createSVGElement("polyline", { points: points, class: "wire", stroke: color, "stroke-width": config.strokeWidth }));
+    }
+
+    function limites_lineas(variables, mapa) {
+        const limites = {};
+        variables.forEach(v => { limites[v] = 80; limites[v + "'"] = 80; });
+        Object.values(mapa).forEach(comp => {
+            comp.inputs.forEach((input, i) => {
+                if (limites[input] !== undefined) {
+                    let offset = (comp.tipo === "AND") ? 10 + (i * (30 / (comp.inputs.length - 1 || 1))) : 20 + (i * (comp.inputs.length > 5 ? 20 : 30));
+                    limites[input] = Math.max(limites[input], comp.posY + offset);
+                }
+            });
+        });
+        return limites;
+    }
+
+    function final(id,nombre_sal){
+        const color = getColor(id);
+        svg.appendChild(createSVGElement("line", { x1: connectionPoints[id].x, y1: connectionPoints[id].y, x2: connectionPoints[id].x + 50, y2: connectionPoints[id].y, stroke: color, "stroke-width": config.strokeWidth, class: "wire" }));
+        const label = createSVGElement("text", { x: connectionPoints[id].x + 60, y: connectionPoints[id].y + 5, class: "output-label", fill: color });
+        label.textContent = nombre_sal;
+        svg.appendChild(label);
+    }
+
+    // --- 3. EJECUCIÓN FINAL ---
+
+    function inicio_sistema(vars, mapa) {
+    autoLayout(mapa); 
+    let limites = limites_lineas(vars, mapa); 
+    gen_colores(vars, mapa);
+    return limites;
 }
-</script>
 
-/*aaaaaaaaaaaaaaaaaaaaaaaa
-<style>
-.contenedor {
-    width: 550px;
-    height: 550px;
+    const miFormula = "ABC + A'B'C + ABC' + D'E";
+    const { mapa, vars } = procesarFormula(miFormula);
 
-}
+    const limites = inicio_sistema(vars, mapa);
 
-#svg {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
+    gen_inputs(vars, limites);
 
-svg * {
-  pointer-events: visiblePainted;
-}
+    Object.keys(mapa).forEach(id => {
+        const comp = mapa[id];
+        const esFinal = comp.esFinal;
+        
+        let info;
+        if(comp.tipo === "AND") {
+            info = gen_AND(esFinal, comp, id);
+        }
+        else{ 
+            info = gen_OR(esFinal, comp, id);
+        }
 
-</style>
-<div class="contenedor">
-  <svg id="svg" viewBox="0 0 550 550"></svg>
-</div>
+        comp.inputs.forEach((inId, i) => {
+            conectar(inId, esFinal, info,i);
+        });
 
-
-<script>
-const svg = document.getElementById("svg");
-
-const cx = 275;
-const cy = 275;
-const r = 200;
-const puntos = 50;
-
-for (let i = 0; i < puntos; i++) {
-  const theta = (2 * Math.PI / puntos) * i;
-
-  const x = cx + r * Math.cos(theta);
-  const y = cy + r * Math.sin(theta);
-
-  // 🔹 Punto del círculo
-  const punto = crearCirculo(x, y, 3);
-  punto.style.cursor = "pointer";
-
-punto.addEventListener("click", () => {
-  toggleColor(punto);
-});
-  svg.appendChild(punto);
-
-  // 🔹 Forma compuesta (grupo)
-  const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
-
-  // mover el grupo al punto
-  grupo.setAttribute(
-    "transform",
-    `translate(${x}, ${y}) rotate(${theta * 180 / Math.PI})`
-  );
-
-  // línea hacia afuera
-  const linea = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  linea.setAttribute("x1", 0);
-  linea.setAttribute("y1", 0);
-  linea.setAttribute("x2", 20);
-  linea.setAttribute("y2", 0);
-  linea.setAttribute("stroke", "black");
-
-  // rectángulo al final
-  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  rect.setAttribute("x", 20);
-  rect.setAttribute("y", -6);
-  rect.setAttribute("width", 14);
-  rect.setAttribute("height", 12);
-  rect.setAttribute("fill", "none");
-  rect.setAttribute("stroke", "black");
-
-  grupo.appendChild(linea);
-  grupo.appendChild(rect);
-  grupo.style.cursor = "pointer";
-
-grupo.addEventListener("click", (e) => {
-  e.stopPropagation(); // evita conflictos
-  toggleColor(grupo);
-});
-
-  svg.appendChild(grupo);
-}
-
-// 🔹 función helper
-function crearCirculo(x, y, r) {
-  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  c.setAttribute("cx", x);
-  c.setAttribute("cy", y);
-  c.setAttribute("r", r);
-  c.setAttribute("fill", "black");
-  return c;
-}
-function toggleColor(el, color1 = "black", color2 = "red") {
-  const actual = el.getAttribute("data-color") || color1;
-  const nuevo = actual === color1 ? color2 : color1;
-
-  el.setAttribute("data-color", nuevo);
-
-  if (el.tagName === "circle") {
-    el.setAttribute("fill", nuevo);
-  } else {
-    el.querySelectorAll("*").forEach(child => {
-      if (child.hasAttribute("stroke"))
-        child.setAttribute("stroke", nuevo);
-      if (child.hasAttribute("fill") && child.getAttribute("fill") !== "none")
-        child.setAttribute("fill", nuevo);
+        if(esFinal) {
+            final(id,"F");
+        }
     });
-  }
-}
 
-</script>
+    // Ajuste de Lienzo
+    const bbox = svg.getBBox();
+    svg.setAttribute("width", bbox.x + bbox.width + 100);
+    svg.setAttribute("height", bbox.y + bbox.height + 100);
 
-*/
+    </script>
+</body>
+</html>

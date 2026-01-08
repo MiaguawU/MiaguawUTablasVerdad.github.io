@@ -32,7 +32,6 @@
                     <h3 id="carH">Características del Grafo 1:</h3>
                     <p id="caract1">none</p>
                 </div>
-                <button class="btn-descargar" id="descargar-g1">Descargar Grafo 1</button>
                 <svg id="grafo1" viewBox="0 0 600 600"></svg>
             </div>
 
@@ -45,7 +44,6 @@
                     <h3 id="carH">Características del Grafo 2:</h3>
                     <p id="caract2">none</p>
                 </div>
-                <button class="btn-descargar" id="descargar-g2">Descargar Grafo 2</button>
                 <svg id="grafo2" viewBox="0 0 600 600"></svg>
             </div>
         </div>
@@ -65,12 +63,24 @@
             const m = parseInt(document.getElementById('numero-m').value);
 
             if (!n || !m) {
-                alert('Por favor, ingresa ambos números');
-                return;
+                alert('Por favor, ingresa ambos numeros');
+                return false;
             }
             if(m>=n){
                 alert("m debe ser menor que n");
-                return;
+                return false;
+            }
+            if(isNaN(n)){
+                alert('n debe ser un numero');
+                return false;
+            }
+            if(isNaN(m)){
+                alert('m debe ser un numero');
+                return false;
+            }
+            if(n>52||m>52){
+                alert('los numeros no pueden ser mayores a 52');
+                return false;
             }
 
             try {
@@ -96,41 +106,6 @@
             
         }
 
-        function descargarSVG(svgElement, nombreArchivo) {
-            // 1. Serializar el SVG a texto XML
-            const serializer = new XMLSerializer();
-            let source = serializer.serializeToString(svgElement);
-
-            // 2. Asegurar que tenga el namespace de XML (necesario para que abra bien en otros programas)
-            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
-                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-            }
-
-            // 3. Crear un Blob (archivo virtual)
-            const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-
-            // 4. Crear un link temporal y hacerle clic
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = nombreArchivo;
-            document.body.appendChild(link);
-            link.click();
-            
-            // 5. Limpieza
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-
-    // ... dentro del script ...
-
-    document.getElementById("descargar-g1").addEventListener("click", () => {
-        descargarSVG(graf1, "grafo_producto.svg");
-    });
-
-    document.getElementById("descargar-g2").addEventListener("click", () => {
-        descargarSVG(graf2, "grafo_suma.svg");
-    });
             
     document.getElementById("enviar").addEventListener("click", graf);
     </script>

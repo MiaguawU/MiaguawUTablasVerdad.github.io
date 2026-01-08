@@ -4,7 +4,7 @@ export class Grafo extends Relacion{
   constructor(relacion,codominio,render_funs,mount){
     super(relacion,codominio);
     this.mount= mount;
-    this.renderer= render_funs;//obj (obejota) te extraño almita
+    this.renderer= render_funs;
     this.centro={ x: 300, y: 300 };
     this.radio=260;
 

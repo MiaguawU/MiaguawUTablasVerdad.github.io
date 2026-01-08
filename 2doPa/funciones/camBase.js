@@ -70,7 +70,7 @@ export function a_base_10(numero, base) {
         else if (!isNaN(char)) {
             valor =  char;
         } else {
-            throw new Error(`Caracter inválido '${char}'`);
+            throw new Error(`Caracter invalido '${char}'`);
         }
 
         if (valor>=base) {

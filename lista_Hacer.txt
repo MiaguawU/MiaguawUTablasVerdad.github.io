@@ -3,3 +3,4 @@
 3-Adaptar lo hecho a lo pedido
 4-conectar los progrmas entre siYAAAAA
 5-Si sale mal, usar el viejo
+6-Hacer uno nuevo para el de circuitos pq es demasiado simple como para usar el de tablas

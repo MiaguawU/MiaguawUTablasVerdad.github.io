@@ -3,185 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algebra booleana</title>
+    <title>Circuitos</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
     <div class="container">
-        <h1>Analizador de Lista de Números</h1>
+        <h1>Circuitos</h1>
         
-        <div class="input-section">
+        <div class="arriba_cont">
+            <div class="input-section">
             <div class="input-group">
                 <label for="lista-numeros">Lista de números (separados por comas):</label>
                 <textarea id="lista-numeros" placeholder="Ej: 5, 10, 15, 20, 8, 12"></textarea>
             </div>
-            <button onclick="analizar()" class="btn-generar">Analizar Lista</button>
+            <button class="btn-generar" id="btn-generar">Analizar Lista</button>
+        </div>
+         <div class="tabla-container">
+                <h3>Tabla</h3>
+                <table id="tabla-resultados"></table>
+            </div>
         </div>
 
         <div class="ecuacion-box">
-            <h3>Ecuación de la media:</h3>
-            <p id="ecuacion-media">μ = (Σx) / n</p>
+            <h3>Funcion normal conjuntiva</h3>
+            <p id="ecuacion"></p>
         </div>
 
         <div class="analysis-container">
-            <div class="tabla-container">
-                <h3>Análisis Estadístico</h3>
-                <table id="tabla-resultados">
-                    <thead>
-                        <tr>
-                            <th>Estadística</th>
-                            <th>Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Cantidad de números</td><td id="cantidad">-</td></tr>
-                        <tr><td>Suma total</td><td id="suma">-</td></tr>
-                        <tr><td>Media</td><td id="media">-</td></tr>
-                        <tr><td>Mediana</td><td id="mediana">-</td></tr>
-                        <tr><td>Máximo</td><td id="maximo">-</td></tr>
-                        <tr><td>Mínimo</td><td id="minimo">-</td></tr>
-                        <tr><td>Rango</td><td id="rango">-</td></tr>
-                    </tbody>
-                </table>
-            </div>
+           
 
             <div class="svg-container">
                 <h3>Visualización de Datos</h3>
-                <svg id="grafico-svg" width="400" height="300"></svg>
+                <div id="canvas-container">
+                    <svg id="logic-svg" width="1400" height="1200"></svg>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function analizar() {
-            const input = document.getElementById('lista-numeros').value;
-            if (!input.trim()) {
-                alert('Por favor, ingresa una lista de números');
-                return;
-            }
+<script type="module">
+    import { dir_boolean } from "./app.js";
+    const svg = document.getElementById("logic-svg");
 
-            const numeros = input.split(',').map(num => parseFloat(num.trim())).filter(num => !isNaN(num));
-            
-            if (numeros.length === 0) {
-                alert('No se encontraron números válidos');
-                return;
-            }
+    function renderizarTabla( tabla ){
+      const table = document.getElementById("tabla-resultados");
+      table.innerHTML = ""; 
+      table.style.display = "table"; 
 
-            // Calcular estadísticas
-            const cantidad = numeros.length;
-            const suma = numeros.reduce((a, b) => a + b, 0);
-            const media = suma / cantidad;
-            const numerosOrdenados = [...numeros].sort((a, b) => a - b);
-            const mediana = cantidad % 2 === 0 
-                ? (numerosOrdenados[cantidad/2 - 1] + numerosOrdenados[cantidad/2]) / 2
-                : numerosOrdenados[Math.floor(cantidad/2)];
-            const maximo = Math.max(...numeros);
-            const minimo = Math.min(...numeros);
-            const rango = maximo - minimo;
+      // Crear <thead>
+      const thead = document.createElement("thead");
+      const trHead = document.createElement("tr");
 
-            // Actualizar tabla
-            document.getElementById('cantidad').textContent = cantidad;
-            document.getElementById('suma').textContent = suma.toFixed(2);
-            document.getElementById('media').textContent = media.toFixed(2);
-            document.getElementById('mediana').textContent = mediana.toFixed(2);
-            document.getElementById('maximo').textContent = maximo;
-            document.getElementById('minimo').textContent = minimo;
-            document.getElementById('rango').textContent = rango.toFixed(2);
+      // Encabezados: el primer valor de cada columna
+      for (let col = 0; col < tabla.length; col++) {
+        const th = document.createElement("th");
+        th.textContent = tabla[col][0]; 
+        trHead.appendChild(th);
+      }
+      thead.appendChild(trHead);
+      table.appendChild(thead);
 
-            // Actualizar ecuación
-            document.getElementById('ecuacion-media').textContent = `μ = ${suma.toFixed(1)} / ${cantidad} = ${media.toFixed(2)}`;
+      // Crear <tbody>
+      const tbody = document.createElement("tbody");
 
-            // Generar gráfico SVG
-            generarGraficoSVG(numeros);
+      const numFilas = tabla[0].length - 1; // -1 porque el primero ya fue encabezado
+      for (let fila = 0; fila < numFilas; fila++) {
+        const tr = document.createElement("tr");
+        tr.setAttribute("contenteditable", "true");
+
+        for (let col = 0; col < tabla.length; col++) {
+          const td = document.createElement("td");
+          const val = tabla[col][fila + 1]; // +1 para saltar el encabezado
+          td.textContent = val;
+          td.classList.add(val)
+
+          tr.appendChild(td);
         }
+        tbody.appendChild(tr);
+      }
 
-        function generarGraficoSVG(numeros) {
-            const svg = document.getElementById('grafico-svg');
-            svg.innerHTML = '';
+      table.appendChild(tbody);
+    }
 
-            const width = 400;
-            const height = 300;
-            const padding = 40;
-            const maxVal = Math.max(...numeros);
-            const minVal = Math.min(...numeros);
-            const range = maxVal - minVal || 1;
+    async function construirYMandar() {
+      let resultado = document.getElementById("lista-numeros").value;
+      const { tabla, funcion } = await dir_boolean(resultado,"logic-svg");
 
-            // Fondo
-            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            rect.setAttribute('width', width);
-            rect.setAttribute('height', height);
-            rect.setAttribute('fill', '#f8f9fa');
-            svg.appendChild(rect);
+      renderizarTabla(tabla);
+      document.getElementById('ecuacion').innerHTML = `F = ${funcion}`
+      ajustarLienzo();
+    }
 
-            // Ejes
-            const ejeX = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            ejeX.setAttribute('x1', padding);
-            ejeX.setAttribute('y1', height - padding);
-            ejeX.setAttribute('x2', width - padding);
-            ejeX.setAttribute('y2', height - padding);
-            ejeX.setAttribute('stroke', '#333');
-            ejeX.setAttribute('stroke-width', '2');
-            svg.appendChild(ejeX);
+    function ajustarLienzo() {
+        
+        const caja = svg.getBBox();
+        
+        const anchoFinal = caja.x + caja.width + 50;
+        const altoFinal = caja.y + caja.height + 50;
 
-            const ejeY = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            ejeY.setAttribute('x1', padding);
-            ejeY.setAttribute('y1', padding);
-            ejeY.setAttribute('x2', padding);
-            ejeY.setAttribute('y2', height - padding);
-            ejeY.setAttribute('stroke', '#333');
-            ejeY.setAttribute('stroke-width', '2');
-            svg.appendChild(ejeY);
+        svg.setAttribute("width", anchoFinal);
+        svg.setAttribute("height", altoFinal);
+    }
 
-            // Barras
-            const barWidth = (width - 2 * padding) / numeros.length * 0.8;
-            numeros.forEach((num, index) => {
-                const barHeight = ((num - minVal) / range) * (height - 2 * padding);
-                const x = padding + index * (width - 2 * padding) / numeros.length + barWidth * 0.1;
-                const y = height - padding - barHeight;
-
-                const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                bar.setAttribute('x', x);
-                bar.setAttribute('y', y);
-                bar.setAttribute('width', barWidth);
-                bar.setAttribute('height', barHeight);
-                bar.setAttribute('fill', `hsl(${index * 360 / numeros.length}, 70%, 60%)`);
-                bar.setAttribute('stroke', '#333');
-                bar.setAttribute('stroke-width', '1');
-                svg.appendChild(bar);
-
-                // Círculos en la parte superior de las barras
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', x + barWidth / 2);
-                circle.setAttribute('cy', y - 5);
-                circle.setAttribute('r', '4');
-                circle.setAttribute('fill', '#e74c3c');
-                svg.appendChild(circle);
-
-                // Etiquetas de valores
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x + barWidth / 2);
-                text.setAttribute('y', height - padding + 15);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-size', '10');
-                text.setAttribute('fill', '#333');
-                text.textContent = num;
-                svg.appendChild(text);
-            });
-
-            // Líneas decorativas
-            for (let i = 1; i <= 5; i++) {
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                const y = padding + i * (height - 2 * padding) / 5;
-                line.setAttribute('x1', padding);
-                line.setAttribute('y1', y);
-                line.setAttribute('x2', width - padding);
-                line.setAttribute('y2', y);
-                line.setAttribute('stroke', '#ddd');
-                line.setAttribute('stroke-width', '1');
-                line.setAttribute('stroke-dasharray', '5,5');
-                svg.appendChild(line);
-            }
-        }
-    </script>
+    document.getElementById("btn-generar").addEventListener("click", () => construirYMandar());
+  </script>
 </body>
 </html>
